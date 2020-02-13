@@ -1,0 +1,378 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "BOE屏幕-接口文档"
+  },
+  "host": "localhost:8000",
+  "basePath": "/api",
+  "tags": [
+    {
+      "name": "flow",
+      "description": "动态页面api"
+    },
+    {
+      "name": "image",
+      "description": "图片详情页面api"
+    },
+    {
+      "name": "prodline",
+      "description": "生产线详情页面api"
+    },
+    {
+      "name": "stats",
+      "description": "数据统计页面api"
+    }
+  ],
+  "schemes": [
+    "https",
+    "http"
+  ],
+  "paths": {
+    "/flow": {
+      "post": {
+        "tags": [
+          "flow"
+        ],
+        "summary": "读取当前Image的mask和权重",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "data",
+            "description": "读入的Image",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ImagePost"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ImageGet"
+            }
+          }
+        }
+      }
+    },
+    "/image/{id}": {
+      "get": {
+        "tags": [
+          "image"
+        ],
+        "summary": "返回指定id对应的图片",
+        "parameters": [
+          {
+            "in": "path",
+            "type": "integer",
+            "name": "id",
+            "description": "图片id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "图片详情",
+            "schema": {
+              "$ref": "#/definitions/ImageInfo"
+            }
+          },
+          "400": {
+            "description": "找不到id所对应的图片"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "image"
+        ],
+        "summary": "删除图片",
+        "description": "从数据库中删除id所对应的图片",
+        "parameters": [
+          {
+            "in": "path",
+            "type": "integer",
+            "name": "id",
+            "description": "图片id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "删除成功"
+          },
+          "400": {
+            "description": "找不到id所对应的图片"
+          }
+        }
+      }
+    },
+    "/prodline/{id}": {
+      "get": {
+        "tags": [
+          "prodline"
+        ],
+        "summary": "返回指定id对应的的生产线详情",
+        "parameters": [
+          {
+            "in": "path",
+            "type": "integer",
+            "name": "id",
+            "description": "生产线id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "生产线详情",
+            "schema": {
+              "$ref": "#/definitions/ProdLineInfo"
+            }
+          },
+          "400": {
+            "description": "找不到id所对应的生产线"
+          }
+        }
+      }
+    },
+    "/stats": {
+      "get": {
+        "tags": [
+          "stats"
+        ],
+        "summary": "取得指定生产线在指定时间范围内的数据",
+        "description": "给定生产线id和时间范围左右端点",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "data",
+            "description": "查询条件",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/StatsPost"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询结果",
+            "schema": {
+              "$ref": "#/definitions/StatsGet"
+            }
+          },
+          "400": {
+            "description": "找不到id所对应的生产线"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Weight": {
+      "type": "object",
+      "required": [
+        "name",
+        "value"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "example": "class0",
+          "enum": [
+            "class0",
+            "class1",
+            "class2",
+            "class3"
+          ]
+        },
+        "value": {
+          "type": "integer",
+          "example": 123,
+          "minimum": 0
+        }
+      }
+    },
+    "ImagePost": {
+      "type": "object",
+      "required": [
+        "image",
+        "image_name",
+        "prod_line"
+      ],
+      "properties": {
+        "image": {
+          "type": "string",
+          "example": "data:image/jpg;base64,iVBORw0KGgo..."
+        },
+        "image_name": {
+          "type": "string",
+          "example": "1a0q930034bcr_0738_0083_4_-234.711_-500.616.jpg"
+        },
+        "prod_line": {
+          "type": "string",
+          "example": "1a0q930034bcr_0738_0083_4_-234"
+        }
+      }
+    },
+    "ImageGet": {
+      "type": "object",
+      "required": [
+        "image",
+        "image_name",
+        "time",
+        "mask",
+        "pred"
+      ],
+      "properties": {
+        "image_name": {
+          "type": "string",
+          "example": "1a0q930034bcr_0738_0083_4_-234.711_-500.616.jpg"
+        },
+        "time": {
+          "type": "object",
+          "format": "date-time"
+        },
+        "mask": {
+          "type": "string",
+          "example": "data:image/jpg;base64,iVBORw0KGgo..."
+        },
+        "pred": {
+          "type": "string",
+          "example": "class1"
+        }
+      }
+    },
+    "ImageInfo": {
+      "type": "object",
+      "required": [
+        "id",
+        "image",
+        "image_name",
+        "time",
+        "mask",
+        "pred",
+        "weights"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "example": 112
+        },
+        "image": {
+          "type": "string",
+          "example": "data:image/jpg;base64,iVBORw0KGgo..."
+        },
+        "image_name": {
+          "type": "string",
+          "example": "1a0q930034bcr_0738_0083_4_-234.711_-500.616.jpg"
+        },
+        "time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "mask": {
+          "type": "string",
+          "example": "data:image/jpg;base64,iVBORw0KGgo..."
+        },
+        "pred": {
+          "type": "string",
+          "example": "class1",
+          "enum": [
+            "class0",
+            "class1",
+            "class2",
+            "class3"
+          ]
+        },
+        "weights": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Weight"
+          }
+        }
+      }
+    },
+    "ProdLineInfo": {
+      "type": "object",
+      "required": [
+        "prod_line_id",
+        "prod_line_name",
+        "image_size",
+        "images",
+        "weights"
+      ],
+      "properties": {
+        "prod_line_id": {
+          "type": "integer",
+          "example": 12,
+          "minimum": 0
+        },
+        "prod_line_name": {
+          "type": "string",
+          "example": "1a0q930034bcr_0738_0083_4_-234"
+        },
+        "image_size": {
+          "type": "integer",
+          "example": 500,
+          "minimum": 0
+        },
+        "images": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ImageGet"
+          }
+        },
+        "weights": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Weight"
+          }
+        }
+      }
+    },
+    "StatsPost": {
+      "type": "object",
+      "properties": {
+        "start_time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "end_time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "prod_line": {
+          "type": "string",
+          "example": "1a0q930034bcr_0738_0083_4_-234"
+        }
+      }
+    },
+    "StatsGet": {
+      "type": "object",
+      "properties": {
+        "prod_line_name": {
+          "type": "string",
+          "example": "1a0q930034bcr_0738_0083_4_-234"
+        },
+        "image_size": {
+          "type": "integer",
+          "example": 15,
+          "minimum": 0
+        },
+        "images": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ImageGet"
+          }
+        },
+        "weights": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Weight"
+          }
+        }
+      }
+    }
+  }
+}
