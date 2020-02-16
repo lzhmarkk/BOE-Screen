@@ -38,11 +38,13 @@ class ToTensor(object):
         # torch image: C X H X W
         img = sample['image']
         mask = sample['label']
-        img = np.array(img).astype(np.float32).transpose((2, 0, 1))
-        mask = np.array(mask).astype(np.float32)
 
+        img = np.array(img).astype(np.float32).transpose((2, 0, 1))
         img = torch.from_numpy(img).float()
-        mask = torch.from_numpy(mask).float()
+
+        if mask is not None:
+            mask = np.array(mask).astype(np.float32)
+            mask = torch.from_numpy(mask).float()
 
         return {'image': img,
                 'label': mask}
@@ -159,10 +161,12 @@ class FixedResize(object):
         img = sample['image']
         mask = sample['label']
 
-        assert img.size == mask.size
-
-        img = img.resize(self.size, Image.BILINEAR)
-        mask = mask.resize(self.size, Image.NEAREST)
+        if mask is not None:
+            assert img.size == mask.size
+            img = img.resize(self.size, Image.BILINEAR)
+            mask = mask.resize(self.size, Image.NEAREST)
+        else:
+            img = img.resize(self.size, Image.BILINEAR)
 
         return {'image': img,
                 'label': mask}

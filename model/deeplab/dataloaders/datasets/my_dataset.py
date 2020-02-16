@@ -34,18 +34,10 @@ class MyDataset(Dataset):
         mask = self._decode(mask, _class)
         target = Image.fromarray(mask)
         sample = {'image': img, 'label': target}
-        return self.transform(sample)
+        return transform(sample)
 
     def __len__(self):
         return len(self.files)
-
-    def transform(self, sample):
-        train_transform = transforms.Compose([
-            tr.FixedResize(700),  # 如果内存不够就resize
-            # tr.Normalize(mean=self.mean, std=self.stdv),
-            tr.ToTensor(),
-        ])
-        return train_transform(sample)
 
     def _decode(self, mask, _class):
         # 若不做分类(self.classify=False)，则把所有的都视为同一类
@@ -92,6 +84,14 @@ class MyDataset(Dataset):
             print("{}：训练{}张，测试{}张".format(_class, len(train_data[_class]), len(test_data[_class])))
 
         return train_data, test_data
+
+
+def transform(sample):
+    train_transform = transforms.Compose([
+        tr.FixedResize(700),  # 如果内存不够就resize到700或者512
+        tr.ToTensor(),
+    ])
+    return train_transform(sample)
 
 
 if __name__ == '__main__':

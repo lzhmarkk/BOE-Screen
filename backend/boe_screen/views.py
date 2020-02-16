@@ -3,7 +3,7 @@ from rest_framework.parsers import JSONParser
 from .utils import *
 from .serializer import *
 import base64
-from PIL import Image
+from PIL import Image as _Image
 import re
 from io import BytesIO
 from rest_framework import status
@@ -15,7 +15,8 @@ def api_flow(request):
     if request.method == 'POST':
         data = JSONParser().parse(request)
         base64_data = re.sub('^data:image/.+;base64,', '', data['image'])
-        img = Image.open(BytesIO(base64.b64decode(base64_data)))
+        img = _Image.open(BytesIO(base64.b64decode(base64_data)))
+
         image_name = data['image_name']
         mask, pred, weights = get_mask(img, analyze=True)
 
