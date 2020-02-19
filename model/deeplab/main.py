@@ -1,13 +1,14 @@
 import argparse
 import torch
+from PIL import Image
 
 
-def _init_args(dataset='mydataset', epochs=10, batch_size=4, lr=0.007, classify="False"):
+def _init_args(dataset='mydataset', epochs=10, batch_size=4, lr=0.007, classify=False):
     assert dataset in ['mydataset', 'penn', 'all']
     assert epochs >= 0
     assert batch_size >= 0
     assert lr >= 0
-    assert classify in ['True', 'False']
+    assert classify in [True, False]
 
     parser = argparse.ArgumentParser(description="PyTorch DeeplabV3Plus Training")
     args = parser.parse_args()
@@ -24,7 +25,7 @@ def _init_args(dataset='mydataset', epochs=10, batch_size=4, lr=0.007, classify=
     args.epochs = epochs
     args.start_epoch = 0
     args.batch_size = batch_size
-    args.test_batch_size = None
+    args.test_batch_size = 4
     args.use_balanced_weights = False
     args.lr = lr
     args.lr_scheduler = 'poly'
@@ -61,7 +62,7 @@ def train_model():
     """
     from model.deeplab.train import Trainer
 
-    args = _init_args()
+    args = _init_args(dataset='all', epochs=50, batch_size=4, lr=0.007, classify=True)
     print(args)
     torch.manual_seed(args.seed)
     trainer = Trainer(args)
@@ -78,12 +79,12 @@ def analyze_image(image):
     """
     :param image: PIL Image
     :return: numpy Image
+    务必选择和训练时一样的参数
     """
     from model.deeplab.train import Trainer
 
-    from PIL import Image
     assert isinstance(image, Image.Image)
-    args = _init_args()
+    args = _init_args(dataset='all', epochs=50, batch_size=4, lr=0.007, classify=True)
     print(args)
     torch.manual_seed(args.seed)
     trainer = Trainer(args)

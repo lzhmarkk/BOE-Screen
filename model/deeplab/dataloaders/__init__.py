@@ -38,9 +38,9 @@ def make_data_loader(args, **kwargs):
         return train_loader, val_loader, test_loader, num_class
 
     elif args.dataset == 'mydataset':
-        train_inputs, val_inputs = my_dataset.MyDataset.apart(0.1, "mydataset")
-        train_set = my_dataset.MyDataset(train_inputs, dataset='mydataset', classify=args.classify)
-        val_set = my_dataset.MyDataset(val_inputs, dataset='mydataset', classify=args.classify)
+        train_inputs, val_inputs = my_dataset.MyDataset.apart(0.1, "mydataset", classify=args.classify)
+        train_set = my_dataset.MyDataset(train_inputs, dataset='mydataset')
+        val_set = my_dataset.MyDataset(val_inputs, dataset='mydataset')
         num_class = 3  # 3
         train_loader = DataLoader(train_set, batch_size=args.batch_size, shuffle=True, **kwargs)
         val_loader = DataLoader(val_set, batch_size=args.batch_size, shuffle=False, **kwargs)
@@ -48,10 +48,10 @@ def make_data_loader(args, **kwargs):
         return train_loader, val_loader, test_loader, num_class
 
     elif args.dataset == 'all':
-        train_inputs, val_inputs = my_dataset.MyDataset.apart(0.1, "all")
-        train_set = my_dataset.MyDataset(train_inputs, dataset='all', classify=args.classify)
-        val_set = my_dataset.MyDataset(val_inputs, dataset='all', classify=args.classify)
-        num_class = 137
+        train_inputs, val_inputs = my_dataset.MyDataset.apart(0.1, "all", classify=args.classify)
+        train_set = my_dataset.MyDataset(train_inputs, dataset='all')
+        val_set = my_dataset.MyDataset(val_inputs, dataset='all')
+        num_class = 3
         train_loader = DataLoader(train_set, batch_size=args.batch_size, shuffle=True, **kwargs)
         val_loader = DataLoader(val_set, batch_size=args.batch_size, shuffle=False, **kwargs)
         test_loader = None

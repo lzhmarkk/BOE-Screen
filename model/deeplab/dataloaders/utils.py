@@ -35,7 +35,7 @@ def decode_segmap(label_mask, dataset, plot=False):
         n_classes = 2
         label_colours = get_penn_labels()
     elif dataset == 'all':
-        n_classes = 137
+        n_classes = 3
         label_colours = get_all_labels()
     else:
         raise NotImplementedError
@@ -120,10 +120,4 @@ def get_penn_labels():
 
 
 def get_all_labels():
-    # 157 classes
-    _ = np.vstack((get_pascal_labels()[1:], get_cityscapes_labels()))
-    _ = np.vstack((_, _))
-    _ = np.vstack((_, _))
-    _ = np.vstack((np.asarray([[0, 0, 0]]), _))
-    # (157,3)
-    return _
+    return get_mydataset_labels()
