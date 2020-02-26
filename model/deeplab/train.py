@@ -51,6 +51,7 @@ class Trainer(object):
         model.set_requires_grad([1], False)
         train_params2 = [{'params': model.get_1x_lr_params(), 'lr': args.lr},
                          {'params': model.get_10x_lr_params(), 'lr': args.lr * 10}]
+        model.set_requires_grad([1, 2], True)
 
         # Define Optimizer
         self.optimizer = torch.optim.SGD(train_params, momentum=args.momentum,
