@@ -26,6 +26,8 @@ class Trainer(object):
         self.writer = self.summary.create_summary()
         self.save_dir = os.path.join('save', 'checkpoint.pth.tar')
         self.cuda = args.cuda
+        self.sync_train = args.sync_train
+        print("同时训练两个分支" if self.sync_train else "交替训练两个分支")
 
         # Define Dataloader
         kwargs = {'num_workers': args.workers, 'pin_memory': True}
@@ -37,14 +39,26 @@ class Trainer(object):
                         output_stride=args.out_stride,
                         sync_bn=args.sync_bn,
                         freeze_bn=args.freeze_bn)
-
+        # 梯度全开
         train_params = [{'params': model.get_1x_lr_params(), 'lr': args.lr},
                         {'params': model.get_10x_lr_params(), 'lr': args.lr * 10}]
+        # 关闭2的梯度
+        model.set_requires_grad([2], False)
+        train_params1 = [{'params': model.get_1x_lr_params(), 'lr': args.lr},
+                         {'params': model.get_10x_lr_params(), 'lr': args.lr * 10}]
+        # 打开2的梯度，关闭1的梯度
+        model.set_requires_grad([1, 2], True)
+        model.set_requires_grad([1], False)
+        train_params2 = [{'params': model.get_1x_lr_params(), 'lr': args.lr},
+                         {'params': model.get_10x_lr_params(), 'lr': args.lr * 10}]
 
         # Define Optimizer
-        optimizer = torch.optim.SGD(train_params, momentum=args.momentum,
-                                    weight_decay=args.weight_decay, nesterov=args.nesterov)
-
+        self.optimizer = torch.optim.SGD(train_params, momentum=args.momentum,
+                                         weight_decay=args.weight_decay, nesterov=args.nesterov)
+        self.optimizer1 = torch.optim.SGD(train_params1, momentum=args.momentum,
+                                          weight_decay=args.weight_decay, nesterov=args.nesterov)
+        self.optimizer2 = torch.optim.SGD(train_params2, momentum=args.momentum,
+                                          weight_decay=args.weight_decay, nesterov=args.nesterov)
         # Define Criterion
         # whether to use class balanced weights
         if args.use_balanced_weights:
@@ -56,14 +70,20 @@ class Trainer(object):
             weight = torch.from_numpy(weight.astype(np.float32))
         else:
             weight = None
-        self.criterion = SegmentationLosses(weight=weight, cuda=args.cuda).build_loss(mode=args.loss_type)
-        self.model, self.optimizer = model, optimizer
+        self.criterion1 = SegmentationLosses(weight=weight, cuda=args.cuda).build_loss(mode=args.loss_type)
+        self.criterion2 = SegmentationLosses(weight=weight, cuda=args.cuda).build_loss(mode=args.loss_type)
+        self.model = model
 
         # Define Evaluator
-        self.evaluator = Evaluator(self.nclass)
+        self.evaluator1 = Evaluator(self.nclass)
+        self.evaluator2 = Evaluator(self.nclass)
         # Define lr scheduler
         self.scheduler = LR_Scheduler(args.lr_scheduler, args.lr,
                                       args.epochs, len(self.train_loader))
+        self.scheduler1 = LR_Scheduler(args.lr_scheduler, args.lr,
+                                       args.epochs, len(self.train_loader))
+        self.scheduler2 = LR_Scheduler(args.lr_scheduler, args.lr,
+                                       args.epochs, len(self.train_loader))
 
         # Using cuda
         if args.cuda:
@@ -93,105 +113,108 @@ class Trainer(object):
             args.start_epoch = 0
 
     def training(self, epoch):
-        from model.deeplab.utils.show import show
-        train_loss = 0.0
+        train_loss1, train_loss2 = 0.0, 0.0
         self.model.train()
         tbar = tqdm(self.train_loader)
         num_img_tr = len(self.train_loader)
         for i, sample in enumerate(tbar):
-            image, target = sample['image'], sample['label']
+            image, target, category = sample['image'], sample['label'], sample['category']
             if self.args.cuda:
-                image, target = image.cuda(), target.cuda()
-            # show(image=image, target=target, label="before")
-            self.scheduler(self.optimizer, i, epoch, self.best_pred)
-            self.optimizer.zero_grad()
-            output = self.model(image)
-            loss = self.criterion(output, target)
-            loss.backward()
-            self.optimizer.step()
-            train_loss += loss.item()
-            tbar.set_description('Train loss: %.3f' % (train_loss / (i + 1)))
-            self.writer.add_scalar('train/total_loss_iter', loss.item(), i + num_img_tr * epoch)
+                image, target, category = image.cuda(), target.cuda(), category.cuda()
+            if self.sync_train:
+                # 同时训练两个分支
+                output_mask, output_category = self.model(image)
+                loss1 = self.criterion1(output_mask, target)
+                loss2 = self.criterion2(output_category, category)
+                self.scheduler(self.optimizer, i, epoch, self.best_pred)
+                self.optimizer.zero_grad()
+                loss = loss1 + loss2
+                loss.backward()
+                self.optimizer.step()
+            else:
+                # 交替训练两个分支
+                self.model.module.set_requires_grad([2], False)
+                output_mask, output_category = self.model(image)
+                loss1 = self.criterion1(output_mask, target)
+                self.scheduler1(self.optimizer1, i, epoch, self.best_pred)
+                self.optimizer1.zero_grad()
+                loss1.backward()
+                self.optimizer1.step()
 
-            # show(image=image, output=output, target=target, label="", dataset='penn')
-            # self.summary.visualize_image(self.writer, self.args.dataset, image, target, output, epoch*1000+i)
-            # Show 10 * 3 inference results each epoch
-            if i % (num_img_tr // 10) == 0:
-                global_step = i + num_img_tr * epoch
-                self.summary.visualize_image(self.writer, self.args.dataset, image, target, output, global_step)
+                self.model.module.set_requires_grad([1, 2], True)
+                self.model.module.set_requires_grad([1], False)
+                output_mask, output_category = self.model(image)
+                loss2 = self.criterion2(output_category, category)
+                self.scheduler2(self.optimizer2, i, epoch, self.best_pred)
+                self.optimizer2.zero_grad()
+                loss2.backward()
+                self.optimizer2.step()
 
-        self.writer.add_scalar('train/total_loss_epoch', train_loss, epoch)
+            train_loss1 += loss1.item()
+            train_loss2 += loss2.item()
+            if i == 0:
+                self.summary.visualize_image(self.writer, self.args.dataset, image, target, output_mask,
+                                             epoch * 1000 + i)
+            tbar.set_description('Train loss: %.3f/%.3f' % (train_loss1 / (i + 1), train_loss2 / (i + 1)))
+
         print('[Epoch: %d, numImages: %5d]' % (epoch, i * self.args.batch_size + image.data.shape[0]))
-        print('Loss: %.3f' % train_loss)
-
-        if self.args.no_val:
-            # save checkpoint every epoch
-            is_best = False
-            self.saver.save_checkpoint({
-                'epoch': epoch + 1,
-                'state_dict': self.model.module.state_dict(),
-                'optimizer': self.optimizer.state_dict(),
-                'best_pred': self.best_pred,
-            }, is_best)
+        print('Loss: %.3f/%.3f' % (train_loss1, train_loss2))
 
     def validation(self, epoch):
         self.model.eval()
-        self.evaluator.reset()
+        self.evaluator1.reset()
+        self.evaluator2.reset()
         tbar = tqdm(self.val_loader, desc='\r')
-        test_loss = 0.0
+        test_loss1, test_loss2 = 0.0, 0.0
         for i, sample in enumerate(tbar):
-            image, target = sample['image'], sample['label']
+            image, target, category = sample['image'], sample['label'], sample['category']
             if self.args.cuda:
-                image, target = image.cuda(), target.cuda()
+                image, target, category = image.cuda(), target.cuda(), category.cuda()
             with torch.no_grad():
-                output = self.model(image)
-            loss = self.criterion(output, target)
-            test_loss += loss.item()
-            tbar.set_description('Test loss: %.3f' % (test_loss / (i + 1)))
-            pred = output.data.cpu().numpy()
-            target = target.cpu().numpy()
-            pred = np.argmax(pred, axis=1)
+                output_mask, output_category = self.model(image)
+            loss1 = self.criterion1(output_mask, target)
+            loss2 = self.criterion2(output_category, category)
+            test_loss1 += loss1.item()
+            test_loss2 += loss2.item()
+            tbar.set_description('Test loss: %.3f/%.3f' % (test_loss1 / (i + 1), test_loss2 / (i + 1)))
+            pred1, pred2 = output_mask.data.cpu().numpy(), output_category.data.cpu().numpy()
+            target1, target2 = target.cpu().numpy(), category.cpu().numpy()
+            pred1, pred2 = np.argmax(pred1, axis=1), np.argmax(pred2, axis=1)
             # Add batch sample into evaluator
-            self.evaluator.add_batch(target, pred)
+            self.evaluator1.add_batch(target1, pred1)
+            self.evaluator2.add_batch(target2, pred2)
 
         # Fast test during the training
-        Acc = self.evaluator.Pixel_Accuracy()
-        Acc_class = self.evaluator.Pixel_Accuracy_Class()
-        mIoU = self.evaluator.Mean_Intersection_over_Union()
-        FWIoU = self.evaluator.Frequency_Weighted_Intersection_over_Union()
-        self.writer.add_scalar('val/total_loss_epoch', test_loss, epoch)
-        self.writer.add_scalar('val/mIoU', mIoU, epoch)
-        self.writer.add_scalar('val/Acc', Acc, epoch)
-        self.writer.add_scalar('val/Acc_class', Acc_class, epoch)
-        self.writer.add_scalar('val/fwIoU', FWIoU, epoch)
+        Acc = self.evaluator1.Pixel_Accuracy()
+        Acc_class = self.evaluator1.Pixel_Accuracy_Class()
+        mIoU = self.evaluator1.Mean_Intersection_over_Union()
+        FWIoU = self.evaluator1.Frequency_Weighted_Intersection_over_Union()
+        Acc2 = self.evaluator2.Pixel_Accuracy()
+        Acc_class2 = self.evaluator2.Pixel_Accuracy_Class()
+        mIoU2 = self.evaluator2.Mean_Intersection_over_Union()
+        FWIoU2 = self.evaluator2.Frequency_Weighted_Intersection_over_Union()
         print('Validation:')
         print('[Epoch: %d, numImages: %5d]' % (epoch, i * self.args.batch_size + image.data.shape[0]))
         print("Acc:{}, Acc_class:{}, mIoU:{}, fwIoU: {}".format(Acc, Acc_class, mIoU, FWIoU))
-        print('Loss: %.3f' % test_loss)
+        print("Acc2:{}, Acc_class2:{}, mIoU2:{}, fwIoU2: {}".format(Acc2, Acc_class2, mIoU2, FWIoU2))
+        print('Loss: %.3f/%.3f' % (test_loss1, test_loss2))
 
         new_pred = mIoU
         if new_pred > self.best_pred:
             is_best = True
             self.best_pred = new_pred
-            self.saver.save_checkpoint({
-                'epoch': epoch + 1,
-                'state_dict': self.model.module.state_dict(),
-                'optimizer': self.optimizer.state_dict(),
-                'best_pred': self.best_pred,
-            }, is_best)
 
     def run(self, image):
         """
         :param image: 待检测一张图片
         :return: mask
         """
-        from model.deeplab.dataloaders.utils import decode_segmap
         from model.deeplab.dataloaders.datasets.my_dataset import transform
 
         # 读取预训练模型
         self.load_checkpoint()
         self.model.eval()
-        self.evaluator.reset()
+        self.evaluator1.reset()
         # 处理输入
         # image = [].append(image)
         sample = transform({'image': image, 'label': None})

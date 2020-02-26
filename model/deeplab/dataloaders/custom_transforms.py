@@ -38,6 +38,7 @@ class ToTensor(object):
         # torch image: C X H X W
         img = sample['image']
         mask = sample['label']
+        category = sample['category']
 
         img = np.array(img).astype(np.float32).transpose((2, 0, 1))
         img = torch.from_numpy(img).float()
@@ -45,9 +46,12 @@ class ToTensor(object):
         if mask is not None:
             mask = np.array(mask).astype(np.float32)
             mask = torch.from_numpy(mask).float()
+            category = np.array(category).astype(np.float32)
+            category = torch.from_numpy(category).float()
 
         return {'image': img,
-                'label': mask}
+                'label': mask,
+                'category': category}
 
 
 class RandomHorizontalFlip(object):
@@ -160,13 +164,16 @@ class FixedResize(object):
     def __call__(self, sample):
         img = sample['image']
         mask = sample['label']
+        category = sample['category']
 
         if mask is not None:
             assert img.size == mask.size
             img = img.resize(self.size, Image.BILINEAR)
             mask = mask.resize(self.size, Image.NEAREST)
+            category = category.resize(self.size, Image.NEAREST)
         else:
             img = img.resize(self.size, Image.BILINEAR)
 
         return {'image': img,
-                'label': mask}
+                'label': mask,
+                'category': category}

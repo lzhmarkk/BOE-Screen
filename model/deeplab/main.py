@@ -3,7 +3,7 @@ import torch
 from PIL import Image
 
 
-def _init_args(dataset='mydataset', epochs=10, batch_size=4, lr=0.007, classify=False):
+def _init_args(dataset='mydataset', epochs=10, batch_size=4, lr=0.007, classify=False, sync_train=True):
     assert dataset in ['mydataset', 'penn', 'all']
     assert epochs >= 0
     assert batch_size >= 0
@@ -41,6 +41,7 @@ def _init_args(dataset='mydataset', epochs=10, batch_size=4, lr=0.007, classify=
     args.eval_interval = 1
     args.no_val = False
     args.classify = classify
+    args.sync_train = sync_train
 
     args.cuda = not args.no_cuda and torch.cuda.is_available()
     if args.cuda:
@@ -62,7 +63,7 @@ def train_model():
     """
     from model.deeplab.train import Trainer
 
-    args = _init_args(dataset='all', epochs=50, batch_size=4, lr=0.007, classify=True)
+    args = _init_args(dataset='all', epochs=50, batch_size=4, lr=0.007, classify=True, sync_train=True)
     print(args)
     torch.manual_seed(args.seed)
     trainer = Trainer(args)
@@ -84,7 +85,7 @@ def analyze_image(image):
     from model.deeplab.train import Trainer
 
     assert isinstance(image, Image.Image)
-    args = _init_args(dataset='all', epochs=50, batch_size=4, lr=0.007, classify=True)
+    args = _init_args(dataset='all', epochs=50, batch_size=4, lr=0.007, classify=True, sync_train=True)
     print(args)
     torch.manual_seed(args.seed)
     trainer = Trainer(args)

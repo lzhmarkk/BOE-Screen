@@ -32,9 +32,10 @@ class MyDataset(Dataset):
         mask = Image.open(os.path.join(self.dir, 'masks', dir, file_name + ext))
         mask = mask.resize(img.size)  # forced resize
         mask = np.array(mask, dtype=np.uint8)
-        mask = self._decode(mask, _class)
+        mask = self._decode(mask, self.classes[0])
         target = Image.fromarray(mask)
-        sample = {'image': img, 'label': target}
+        category = Image.fromarray(self._decode(np.ones(img.size), _class))
+        sample = {'image': img, 'label': target, 'category': category}
         return transform(sample)
 
     def __len__(self):
@@ -73,7 +74,8 @@ class MyDataset(Dataset):
                         _class = os.path.split(root)[1]  # 子文件夹名
                     else:
                         _class = 'image'
-                    classes.append(_class)
+                    if _class not in classes:
+                        classes.append(_class)
                 else:
                     raise NotImplementedError
 
@@ -133,6 +135,11 @@ if __name__ == '__main__':
                 plt.title('masks{}'.format(idx))
                 plt.imshow(decode_segmap(np.array(label_mask), _dataset))
                 plt.show()
+        elif type == 'category':
+            for idx, label_mask in enumerate(images):
+                plt.title('category {}'.format(idx))
+                plt.imshow(decode_segmap(np.array(label_mask), _dataset))
+                plt.show()
         else:
             sample = torchvision.utils.make_grid(images, normalize=True)
             sample = sample.numpy().transpose((1, 2, 0))
@@ -143,4 +150,5 @@ if __name__ == '__main__':
 
     printer(samples['image'], type='image')
     printer(samples['label'], type='label')
+    printer(samples['category'], type='category')
     exit(0)

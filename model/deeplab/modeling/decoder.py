@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from model.deeplab.modeling.sync_batchnorm.batchnorm import SynchronizedBatchNorm2d
+from model.deeplab.modeling.Sequential import Sequential
 
 
 class Decoder(nn.Module):
@@ -20,15 +21,8 @@ class Decoder(nn.Module):
         self.conv1 = nn.Conv2d(low_level_inplanes, 48, 1, bias=False)
         self.bn1 = BatchNorm(48)
         self.relu = nn.ReLU()
-        self.last_conv = nn.Sequential(nn.Conv2d(304, 256, kernel_size=3, stride=1, padding=1, bias=False),
-                                       BatchNorm(256),
-                                       nn.ReLU(),
-                                       nn.Dropout(0.5),
-                                       nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1, bias=False),
-                                       BatchNorm(256),
-                                       nn.ReLU(),
-                                       nn.Dropout(0.1),
-                                       nn.Conv2d(256, num_classes, kernel_size=1, stride=1))
+        self.last_conv1 = Sequential(num_classes, backbone, BatchNorm)
+        self.last_conv2 = Sequential(num_classes, backbone, BatchNorm)
         self._init_weight()
 
     def forward(self, x, low_level_feat):
@@ -38,9 +32,10 @@ class Decoder(nn.Module):
 
         x = F.interpolate(x, size=low_level_feat.size()[2:], mode='bilinear', align_corners=True)
         x = torch.cat((x, low_level_feat), dim=1)
-        x = self.last_conv(x)
+        x1 = self.last_conv1(x)
+        x2 = self.last_conv2(x)
 
-        return x
+        return x1, x2
 
     def _init_weight(self):
         for m in self.modules():
@@ -52,6 +47,15 @@ class Decoder(nn.Module):
             elif isinstance(m, nn.BatchNorm2d):
                 m.weight.data.fill_(1)
                 m.bias.data.zero_()
+
+    def set_requires_grad(self, modules, mode):
+        for module in modules:
+            if module == 1:
+                self.last_conv1.set_requires_grad(mode)
+            elif module == 2:
+                self.last_conv2.set_requires_grad(mode)
+            else:
+                raise NotImplementedError
 
 
 def build_decoder(num_classes, backbone, BatchNorm):

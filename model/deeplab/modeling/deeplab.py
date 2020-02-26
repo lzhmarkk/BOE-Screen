@@ -28,10 +28,14 @@ class DeepLab(nn.Module):
     def forward(self, input):
         x, low_level_feat = self.backbone(input)
         x = self.aspp(x)
-        x = self.decoder(x, low_level_feat)
-        x = F.interpolate(x, size=input.size()[2:], mode='bilinear', align_corners=True)
+        x1, x2 = self.decoder(x, low_level_feat)
+        x1 = F.interpolate(x1, size=input.size()[2:], mode='bilinear', align_corners=True)
+        x2 = F.interpolate(x2, size=input.size()[2:], mode='bilinear', align_corners=True)
 
-        return x
+        return x1, x2
+
+    def set_requires_grad(self, modules, mode):
+        self.decoder.set_requires_grad(modules, mode)
 
     def freeze_bn(self):
         for m in self.modules():
@@ -42,35 +46,39 @@ class DeepLab(nn.Module):
 
     def get_1x_lr_params(self):
         modules = [self.backbone]
+        params = []
         for i in range(len(modules)):
             for m in modules[i].named_modules():
                 if self.freeze_bn:
                     if isinstance(m[1], nn.Conv2d):
                         for p in m[1].parameters():
                             if p.requires_grad:
-                                yield p
+                                params.append(p)
                 else:
                     if isinstance(m[1], nn.Conv2d) or isinstance(m[1], SynchronizedBatchNorm2d) \
                             or isinstance(m[1], nn.BatchNorm2d):
                         for p in m[1].parameters():
                             if p.requires_grad:
-                                yield p
+                                params.append(p)
+        return params
 
     def get_10x_lr_params(self):
         modules = [self.aspp, self.decoder]
+        params = []
         for i in range(len(modules)):
             for m in modules[i].named_modules():
                 if self.freeze_bn:
                     if isinstance(m[1], nn.Conv2d):
                         for p in m[1].parameters():
                             if p.requires_grad:
-                                yield p
+                                params.append(p)
                 else:
                     if isinstance(m[1], nn.Conv2d) or isinstance(m[1], SynchronizedBatchNorm2d) \
                             or isinstance(m[1], nn.BatchNorm2d):
                         for p in m[1].parameters():
                             if p.requires_grad:
-                                yield p
+                                params.append(p)
+        return params
 
 
 if __name__ == "__main__":
