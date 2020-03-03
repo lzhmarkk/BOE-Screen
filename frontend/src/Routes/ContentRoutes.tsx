@@ -18,8 +18,8 @@ const ContentRoutes = () => <Switch>
     <Route path="/prodline/" render={PageProdlineRoutes}/>
     <Route path="/stats/" render={PageStats}/>
     <Route path="/account/" render={PageAccount}/>
-    <Route component={NotFound}/>
     <Route path="/help/" render={PageHelp}/>
+    <Route component={NotFound}/>
 </Switch>;
 
 export default ContentRoutes;
