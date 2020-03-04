@@ -12,7 +12,7 @@ const MainLayout = (props: { children: ReactElement }) => {
         <Layout style={{minHeight: '100vh'}}>
             <Sider collapsible collapsed={collapsed} onCollapse={() => setCollapsed(!collapsed)}>
                 <div className={style.logo}/>
-                <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline">
+                <Menu theme="dark" mode="inline">
                     <Menu.Item key="1">
                         <Link to={"/flow"}/>
                         <span>主页</span>
