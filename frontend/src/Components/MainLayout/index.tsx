@@ -1,10 +1,19 @@
 import React, {ReactElement, useState} from "react";
-import {Layout, Menu, Breadcrumb} from 'antd';
+import {Layout, Menu, Breadcrumb, Icon, Button, Dropdown, Avatar} from 'antd';
 import style from "./index.module.scss";
 import {Link} from "react-router-dom";
 
 const {Header, Content, Sider, Footer} = Layout;
 const {SubMenu} = Menu;
+const logout_menu = (
+    <Menu>
+        <Menu.Item>
+            <a target="_blank" rel="noopener noreferrer" href="http://www.alipay.com/">
+                阿里
+            </a>
+        </Menu.Item>
+    </Menu>
+)
 
 const MainLayout = (props: { children: ReactElement }) => {
     const [collapsed, setCollapsed] = useState(false);
@@ -36,7 +45,18 @@ const MainLayout = (props: { children: ReactElement }) => {
                 </Menu>
             </Sider>
             <Layout>
-                <Header className={style.header}/>
+                <Header className={style.header}>
+                    <div className={style.title}>
+                        屏幕流水线监视系统
+                    </div>
+                    <div className={style.loginControl}>
+                        <Dropdown overlay={logout_menu}>
+                            <Button shape="circle">
+                                <Avatar style={{ backgroundColor: '#87d068' }} icon={"user"} />
+                            </Button>
+                        </Dropdown>,
+                    </div>
+                </Header>
                 <Content className={style.content} style={{margin: '0 16px'}}>
                     <Breadcrumb style={{margin: '16px 0'}}>
                         <Breadcrumb.Item>User</Breadcrumb.Item>
