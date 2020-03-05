@@ -24,22 +24,27 @@ const MainLayout = (props: { children: ReactElement }) => {
                 <Menu theme="dark" mode="inline">
                     <Menu.Item key="1">
                         <Link to={"/flow"}/>
+                        <Icon type={'home'}/>
                         <span>主页</span>
                     </Menu.Item>
                     <Menu.Item key="2">
                         <Link to={"/prodline"}/>
+                        <Icon type={'build'}/>
                         <span>生产线</span>
                     </Menu.Item>
                     <Menu.Item key="3">
                         <Link to={"/stats"}/>
+                        <Icon type={'area-chart'}/>
                         <span>统计和报表</span>
                     </Menu.Item>
                     <Menu.Item key="4">
                         <Link to={"/help"}/>
+                        <Icon type={'compass'}/>
                         <span>帮助</span>
                     </Menu.Item>
                     <Menu.Item key="5">
                         <Link to={"/account"}/>
+                        <Icon type={'user'}/>
                         <span>个人账户</span>
                     </Menu.Item>
                 </Menu>
@@ -52,7 +57,7 @@ const MainLayout = (props: { children: ReactElement }) => {
                     <div className={style.loginControl}>
                         <Dropdown overlay={logout_menu}>
                             <Button shape="circle">
-                                <Avatar style={{ backgroundColor: '#87d068' }} icon={"user"} />
+                                <Avatar style={{backgroundColor: '#87d068'}} icon={"user"}/>
                             </Button>
                         </Dropdown>,
                     </div>
