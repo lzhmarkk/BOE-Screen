@@ -3,6 +3,7 @@ import {Button, Table} from 'antd';
 import fakeProdlineInfo from "../../Assets/fakeProdlineInfo";
 import {GenColumns} from "../../Components/Prodline";
 import style from './index.module.scss'
+import ILineForm from "./form";
 
 const PageProdlineIndex = () => {
     const [prodlineData, setProdlineData] = useState(fakeProdlineInfo);
@@ -18,6 +19,7 @@ const PageProdlineIndex = () => {
             <span>
                 这里是生产线页面主页
             </span>
+            <ILineForm />
             <Table size={'small'} dataSource={prodlineData} columns={genColumns}
                    rowClassName={(record: any) => {
                        return rowid === record.prodline_id ? style.void : style.void;

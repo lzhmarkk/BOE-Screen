@@ -1,4 +1,5 @@
 import React from "react"
+import IAccountForm from "./form";
 
 const PageAccount=() => {
     return (
@@ -6,6 +7,7 @@ const PageAccount=() => {
             <span>
                 个人账户信息
             </span>
+            <IAccountForm />
         </div>
     )
 };
