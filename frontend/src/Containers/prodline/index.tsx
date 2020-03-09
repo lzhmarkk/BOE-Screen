@@ -1,23 +1,44 @@
-import React, {useState} from "react"
-import {Button, Table} from 'antd';
+import React, {useState, useEffect} from "react"
+import Axios from 'axios';
+import {Button, Table, message} from 'antd';
 import fakeProdlineInfo from "../../Assets/fakeProdlineInfo";
-import {GenColumns} from "../../Components/Prodline";
+import {GenColumns, GenGraphs} from "../../Components/Prodline";
 import style from './index.module.scss'
+import {IProdlineInfo} from '../../Components/Prodline';
+import APIList from "../../API";
 
+//接口参考components/prodline/index.tsx
 const PageProdlineIndex = () => {
-    const [prodlineData, setProdlineData] = useState(fakeProdlineInfo);
+    const [prodlineData, setProdlineData] = useState<IProdlineInfo[]>(fakeProdlineInfo);
     const [rowid, setRowid] = useState('-1');
 
+    //自动更新页面
+    useEffect(() => {
+        Axios.get(APIList.prodline)
+            .then(res => {
+                setProdlineData(res.data);
+                console.log(res);
+                message.success("成功获取生产线数据");
+            })
+            .catch(err => {
+                console.log(err);
+                message.error("获取生产线数据失败");
+            })
+    }, []);
     const Action = (props: { record: any }) => <div>
         <Button type={rowid === props.record.prodline_id ? 'primary' : "dashed"}
                 onClick={() => window.location.href = `/prodline/${props.record.prodline_id}`}>查看详情</Button>
     </div>;
     const genColumns = GenColumns(Action);
+    const genGraphs = GenGraphs(prodlineData);
+    //todo: echarts表单，点击GenGraphs进入补充
+    //todo: 筛选头表单
     return (
         <div>
             <span>
                 这里是生产线页面主页
             </span>
+            <div>{genGraphs}</div>
             <Table size={'small'} dataSource={prodlineData} columns={genColumns}
                    rowClassName={(record: any) => {
                        return rowid === record.prodline_id ? style.void : style.void;

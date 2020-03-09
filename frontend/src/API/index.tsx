@@ -3,8 +3,9 @@
  */
 const BASE = "http://localhost:8000";
 export const APIList = {
-    index: `${BASE}/api/index/`,
-    repo: `${BASE}/api/repo/`,
+    flow: `${BASE}/api/flow/`,
+    image: (id: number) => `${BASE}/api/image/${id}`,
+    prodline: `${BASE}/api/prodline/`,
     stats: `${BASE}/api/stats/`,
 };
 

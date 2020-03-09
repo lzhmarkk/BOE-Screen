@@ -51,3 +51,10 @@ export const GenColumns = (Action: (props: { record: any }) => JSX.Element) => [
         render: (_: any, record: any, ___: any) => <Action record={record}/>
     },
 ];
+
+export const GenGraphs = (data: IProdlineInfo[]) => {
+    //todo @贺
+    return (<div>
+        柱状图
+    </div>);
+};

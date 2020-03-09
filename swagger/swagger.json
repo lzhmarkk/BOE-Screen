@@ -108,6 +108,23 @@
         }
       }
     },
+    "/prodline/": {
+      "get": {
+        "tags": [
+          "prodline"
+        ],
+        "summary": "返回所有生产线总览",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "生产线总览",
+            "schema": {
+              "$ref": "#/definitions/ProdLine"
+            }
+          }
+        }
+      }
+    },
     "/prodline/{id}": {
       "get": {
         "tags": [
@@ -209,7 +226,7 @@
           "type": "string",
           "example": "1a0q930034bcr_0738_0083_4_-234.711_-500.616.jpg"
         },
-        "prod_line": {
+        "prodline_name": {
           "type": "string",
           "example": "1a0q930034bcr_0738_0083_4_-234"
         }
@@ -219,25 +236,21 @@
       "type": "object",
       "required": [
         "image",
-        "image_name",
         "time",
         "mask",
-        "pred"
+        "class"
       ],
       "properties": {
-        "image_name": {
-          "type": "string",
-          "example": "1a0q930034bcr_0738_0083_4_-234.711_-500.616.jpg"
-        },
         "time": {
-          "type": "object",
-          "format": "date-time"
+          "type": "string",
+          "format": "date-time",
+          "example": "2020-03-14 12:04:33"
         },
         "mask": {
           "type": "string",
           "example": "data:image/jpg;base64,iVBORw0KGgo..."
         },
-        "pred": {
+        "class": {
           "type": "string",
           "example": "class1"
         }
@@ -251,8 +264,7 @@
         "image_name",
         "time",
         "mask",
-        "pred",
-        "weights"
+        "class"
       ],
       "properties": {
         "id": {
@@ -275,21 +287,9 @@
           "type": "string",
           "example": "data:image/jpg;base64,iVBORw0KGgo..."
         },
-        "pred": {
+        "class": {
           "type": "string",
-          "example": "class1",
-          "enum": [
-            "class0",
-            "class1",
-            "class2",
-            "class3"
-          ]
-        },
-        "weights": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Weight"
-          }
+          "example": "class1"
         }
       }
     },
@@ -298,7 +298,7 @@
       "required": [
         "prod_line_id",
         "prod_line_name",
-        "image_size",
+        "image_amount",
         "images",
         "weights"
       ],
@@ -312,7 +312,7 @@
           "type": "string",
           "example": "1a0q930034bcr_0738_0083_4_-234"
         },
-        "image_size": {
+        "image_amount": {
           "type": "integer",
           "example": 500,
           "minimum": 0
@@ -336,13 +336,15 @@
       "properties": {
         "start_time": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "example": "2019-4-12 03:11:41"
         },
         "end_time": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "example": "2020-6-11 13:11:41"
         },
-        "prod_line": {
+        "prodline_name": {
           "type": "string",
           "example": "1a0q930034bcr_0738_0083_4_-234"
         }
@@ -355,8 +357,8 @@
           "type": "string",
           "example": "1a0q930034bcr_0738_0083_4_-234"
         },
-        "image_size": {
-          "type": "integer",
+        "image_amount": {
+          "type": "number",
           "example": 15,
           "minimum": 0
         },
@@ -371,6 +373,43 @@
           "items": {
             "$ref": "#/definitions/Weight"
           }
+        }
+      }
+    },
+    "ProdLine": {
+      "type": "object",
+      "required": [
+        "data"
+      ],
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ProdLineData"
+          }
+        }
+      }
+    },
+    "ProdLineData": {
+      "type": "object",
+      "properties": {
+        "prodline_id": {
+          "type": "number",
+          "example": 12
+        },
+        "prodline_name": {
+          "type": "string",
+          "example": "prodline000"
+        },
+        "image_amount": {
+          "type": "number",
+          "example": 500,
+          "minimum": 0
+        },
+        "bad_count": {
+          "type": "number",
+          "example": 12,
+          "minimum": 0
         }
       }
     }
