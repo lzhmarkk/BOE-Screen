@@ -6,10 +6,12 @@ import {GenColumns, GenGraphs} from "../../Components/Prodline";
 import style from './index.module.scss'
 import {IProdlineInfo} from '../../Components/Prodline';
 import APIList from "../../API";
+import ISearchPanel from "./form";
 
 //接口参考components/prodline/index.tsx
 const PageProdlineIndex = () => {
     const [prodlineData, setProdlineData] = useState<IProdlineInfo[]>(fakeProdlineInfo);
+    const [tableData, setTableData] = useState(prodlineData);
     const [rowid, setRowid] = useState('-1');
 
     //自动更新页面
@@ -17,6 +19,7 @@ const PageProdlineIndex = () => {
         Axios.get(APIList.prodline)
             .then(res => {
                 setProdlineData(res.data);
+                setTableData(res.data);
                 console.log(res);
                 message.success("成功获取生产线数据");
             })
@@ -39,7 +42,14 @@ const PageProdlineIndex = () => {
                 这里是生产线页面主页
             </span>
             <div>{genGraphs}</div>
-            <Table size={'small'} dataSource={prodlineData} columns={genColumns}
+            <div className={style.ControlPanel}>
+                <ISearchPanel
+                    onSearch={e => !e.content ? setTableData(prodlineData) :
+                        setTableData(prodlineData.filter((k: any) => (k["prodline_name"] as string).indexOf(e.content) !== -1))}
+                    onClear={() => setTableData(prodlineData)}
+                />
+            </div>
+            <Table size={'small'} dataSource={tableData} columns={genColumns}
                    rowClassName={(record: any) => {
                        return rowid === record.prodline_id ? style.void : style.void;
                    }}

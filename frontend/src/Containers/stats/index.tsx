@@ -23,12 +23,16 @@ const PageStats = () => {
                 message.error("获取统计数据失败");
             })
     }, []);
+    const genEcharts = genGraphs(statsData);
     return (
         <div>
             <span>
-            }
+                这里怎么设计@郭 @邓
                 统计和报表
             </span>
+            <div>
+                {genEcharts}
+            </div>
         </div>
     )
 };
