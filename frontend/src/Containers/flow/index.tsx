@@ -28,6 +28,7 @@ const PageFlow = () => {
         Axios.post(APIList.flow, data)
             .then(res => {
                 console.log(res);
+                setData(res.data);
                 message.success("成功分析该图片");
             })
             .catch(err => {
@@ -47,21 +48,22 @@ const PageFlow = () => {
                     const postData = {
                         "image": e.image === undefined ? undefined : e.image[0].thumbUrl,
                         "image_name": "image name",
-                        "prodline_name": e.prodline_name
+                        "prodline_name": e.prodline_name === undefined ? "" : e.prodline_name
                     };
+                    console.log(postData);
                     handlePost(postData);
                 }}/>
             </div>
             <div className={flow_style.image}>
-                <img src={image} alt={"示例图片"}/>
+                <img src={data.image} alt={"示例图片"}/>
 
             </div>
             <div className={flow_style.image}>
-                <img src={mask} alt={"mask"}/>
+                <img src={data.mask} alt={"mask"}/>
 
             </div>
             <span>
-                Mask
+                {data.class}
             </span>
         </div>
     )

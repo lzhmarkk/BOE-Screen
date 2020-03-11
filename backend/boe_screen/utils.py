@@ -1,14 +1,21 @@
 import torch
 import numpy
+import re
+import base64
+import os
 from model.deeplab.main import analyze_image
 from model.deeplab.dataloaders.utils import decode_segmap
+from PIL import Image as _Image
+from io import BytesIO
 
 
 def get_mask(image, analyze=True):
     """
     取得image的mask等信息
     :param image:(PIL Image)
-    :return: mask
+    :return: mask 图片的mask
+             dict mask中各类的像素数
+             area mask的大小
     """
     # shape: h x w
     if analyze:
@@ -16,11 +23,13 @@ def get_mask(image, analyze=True):
         mask = analyze_image(image)
         # mask (numpy array) h x w
         dict = get_class_dict(mask, mask.shape)
+        area = get_area(mask)
         mask = decode_segmap(mask, dataset='mydataset')
         mask = mask * 255
-        return mask, _max(dict), dict
+        return mask, _max(dict), dict, area
     else:
-        return None, 0, {}
+        _image = numpy.array(image)
+        return image, 0, {}, _image.shape[0] * _image.shape[1]
 
 
 def get_class_dict(mask, shape):
@@ -39,6 +48,11 @@ def get_class_dict(mask, shape):
         dict[_class] = masks[i].sum()
 
     return dict
+
+
+def get_area(img):
+    h, w = img.shape
+    return h * w
 
 
 def _to_tensor(img):
@@ -68,27 +82,42 @@ def _max(dict):
     return max_class
 
 
-if __name__ == '__main__':
-    # test
-    from PIL import Image
-    import os
-    from io import BytesIO
-    import base64
-
-    # test 先图片转化成base64,再测试从base64转化成图片并获取mask
-    img = Image.open(os.path.join('/run/media/lzhmark/shared/boe-screen/all/images/19k-Final-9941-1',
-                                  '1a54960042mcj_1065_448_1.jpg'))
+def pil2base(pil, ext):
+    """
+    :param pil: PIL Image
+    :param ext: 图片后缀名PNG/jpeg
+    :return: base64格式的图片
+    """
     output_buffer = BytesIO()
-    img.save(output_buffer, format('JPEG'))
-    base64_data = base64.b64encode(output_buffer.getvalue())
+    pil.save(output_buffer, format(ext))
+    return "data:image/png;base64," + (base64.b64encode(output_buffer.getvalue())).decode()
+
+
+def base2pil(base):
+    """
+    :param base: base64格式的图片
+    :return: PIL格式的图片
+    """
+    base64_data = re.sub('^data:image/.+;base64,', '', base)
+    return _Image.open(BytesIO(base64.b64decode(base64_data)))
+
+
+if __name__ == '__main__':
+    # test 先图片转化成base64,再测试从base64转化成图片并获取mask
+    img = _Image.open(os.path.join('/run/media/lzhmark/shared/boe-screen/all/images/19k-Final-9941-1',
+                                   '1a54960042mcj_1065_448_1.jpg'))
+
+    base64_data = pil2base(img, 'jpeg')
     print(base64_data)
-    img = Image.open(BytesIO(base64.b64decode(base64_data)))
-    # img.show("转换后的Image")
-    mask, pred, weights = get_mask(img, analyze=True)
+    img = base2pil(base64_data)
+    img.show("转换后的Image")
+    mask, pred, weights, area = get_mask(img, analyze=False)
 
     # 展示结果
-    mask = Image.fromarray(mask.astype('uint8'))
-    mask.show("得到的mask")
+    if mask is not None:
+        mask = _Image.fromarray(mask.astype('uint8'))
+        mask.show("得到的mask")
     print("预测", pred)
     print("权重", weights)
+    print("面积", area)
     exit(0)

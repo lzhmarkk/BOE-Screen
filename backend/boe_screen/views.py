@@ -2,10 +2,6 @@ from django.http import JsonResponse, HttpResponse
 from rest_framework.parsers import JSONParser
 from .utils import *
 from .serializer import *
-import base64
-from PIL import Image as _Image
-import re
-from io import BytesIO
 from rest_framework import status
 
 
@@ -14,31 +10,33 @@ from rest_framework import status
 def api_flow(request):
     if request.method == 'POST':
         data = JSONParser().parse(request)
-        base64_data = re.sub('^data:image/.+;base64,', '', data['image'])
-        img = _Image.open(BytesIO(base64.b64decode(base64_data)))
+        img = base2pil(data['image'])
 
         image_name = data['image_name']
-        mask, pred, weights = get_mask(img, analyze=True)
+        mask, pred, weights, area = get_mask(img, analyze=False)
 
-        prod_line_name = data['prod_line']
-        try:
-            prodline = ProdLine.objects.get(prod_line_name=prod_line_name)
+        prodline_name = data['prodline_name']
+        """try:
+            prodline = ProdLine.objects.get(prod_line_name=prodline_name)
         except ProdLine.DoesNotExist:
-            prodline = ProdLine.objects.create(prod_line_name=prod_line_name, image_size=0)
-
+            prodline = ProdLine.objects.create(prod_line_name=prodline_name, image_size=0)
+        """
         data = {
             'image': img,
             'image_name': image_name,
             'mask': mask,
             'pred': pred,
-            'weights': weights,
-            'prod_line': prodline
+            # 'prodline': prodline
         }
         serializer = ApiFlowPostSerializer(data=data)
         if serializer.is_valid():
-            serializer.save()
+            # serializer.save()
+            pass
 
-        data = serializer.data.pop('image')
+        data = serializer.data
+        data['image'] = pil2base(data['image'], 'PNG')
+        data['mask'] = pil2base(data['mask'], 'PNG')
+        data['class'] = data['pred']
         return JsonResponse(data, status=status.HTTP_200_OK)
 
 
