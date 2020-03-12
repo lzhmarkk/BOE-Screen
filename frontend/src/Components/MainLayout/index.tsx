@@ -52,7 +52,7 @@ const MainLayout = (props: { children: ReactElement }) => {
             <Layout>
                 <Header className={style.header}>
                     <div className={style.title}>
-                        屏幕流水线监视系统
+                        屏幕缺陷检测系统
                     </div>
                     <div className={style.loginControl}>
                         <Dropdown overlay={logout_menu}>
@@ -65,7 +65,7 @@ const MainLayout = (props: { children: ReactElement }) => {
                 <Content className={style.content} style={{margin: '0 16px'}}>
                     {props.children}
                 </Content>
-                <Footer style={{textAlign: 'center'}}>Ant Design ©2018 Created by Ant UED</Footer>
+                <Footer style={{textAlign: 'center'}}>屏幕缺陷检测系统 Create by Lzh, Gld, Dly, Hxj</Footer>
             </Layout>
         </Layout>
     );
