@@ -67,11 +67,9 @@ const IForm = (props: IFormProps) => {
                                    onChange={(state: any) => {
                                        setPicSize(state.fileList.length);
                                    }}>
-                            {picSize === 0 ?
-                                <Button>
-                                    <Icon type="upload"/>点击选择图片
-                                </Button> : <React.Fragment/>
-                            }
+                            <Button disabled={picSize !== 0}>
+                                <Icon type="upload"/>上传一张图片
+                            </Button>
                         </Upload>)}
                     </Form.Item>
                     <Form.Item>

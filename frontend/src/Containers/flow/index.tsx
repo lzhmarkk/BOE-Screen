@@ -1,9 +1,7 @@
 import React, {useState} from "react"
-import {Button, message, Spin} from "antd";
+import {Button, message, Spin, Steps, Carousel, Row, Col, Empty, Card} from "antd";
 import Axios from 'axios';
 import flow_style from "./index.module.scss"
-import image from "../../Assets/image_demo.jpg"
-import mask from "../../Assets/mask_demo.jpg"
 import IPictureForm, {IFormPayload} from "./form";
 import APIList from "../../API";
 
@@ -16,8 +14,13 @@ interface PageFlowData {
     mask: string | undefined//图片mask
 }
 
+const {Step} = Steps;
+
 const PageFlow = () => {
     const [analyzing, setAnalyzing] = useState(false);
+    const [carouselRef, setCarouselRef] = useState<any>(undefined);
+    const [current, setCurrent] = useState(0);
+    const [sliding, setSliding] = useState(false);
     const [data, setData] = useState<PageFlowData>({
         image: undefined,
         image_name: "null",
@@ -41,34 +44,70 @@ const PageFlow = () => {
                 }
             );
     };
-    //todo: 调整图片的大小
-    //todo: 图片和mask增加边框
     //todo: 增加图片的分类的一个展示(PageFlowData的class字段)
-    //todo: 动态切换效果？？
     const content = <div>
-        <div className={flow_style.upload}>
-            <IPictureForm onSubmit={(e: IFormPayload) => {
-                const postData = {
-                    "image": e.image === undefined ? undefined : e.image[0].originFileObj.thumbUrl,
-                    "image_name": "image name",
-                    "prodline_name": e.prodline_name === undefined ? "" : e.prodline_name
-                };
-                console.log(postData);
-                handlePost(postData);
-            }}/>
+            <Row>
+                <Col span={20}>
+                    <Steps type="navigation" size="small" current={current}
+                           className={flow_style.step}
+                           onChange={() => {
+                               if (current === 0) {
+                                   carouselRef.next();
+                                   setCurrent(1);
+                               } else if (current === 1) {
+                                   carouselRef.prev();
+                                   setCurrent(0);
+                               }
+                           }}>
+                        <Step key={0} title="原图"
+                              status="finish" description="原始图片"
+                              disabled={sliding}/>
+                        <Step key={1} title="污点或损坏"
+                              status="finish" description="分析得到污点或者损坏"
+                              disabled={sliding}/>
+                    </Steps>
+                    <Carousel ref={e => setCarouselRef(e)}
+                              beforeChange={() => setSliding(true)}
+                              afterChange={() => setSliding(false)}>
+                        <Card>
+                            {
+                                data.image !== undefined ?
+                                    <div className={flow_style.image}>
+                                        <img src={data.image} alt={"图片"}/>
+                                    </div>
+                                    :
+                                    <Empty description={"请先上传一张图片"}/>
+                            }
+                        </Card>
+                        <Card>
+                            {
+                                data.mask !== undefined ?
+                                    <div className={flow_style.image}>
+                                        <img src={data.mask} alt={"mask"}/>
+                                    </div>
+                                    :
+                                    <Empty description={"请先上传一张图片"}/>
+                            }
+                        </Card>
+                    </Carousel>
+                </Col>
+                <Col span={4}>
+                    <div className={flow_style.upload}>
+                        <IPictureForm onSubmit={(e: IFormPayload) => {
+                            const postData = {
+                                "image": e.image === undefined ? undefined : e.image[0].originFileObj.thumbUrl,
+                                "image_name": "image name",
+                                "prodline_name": e.prodline_name === undefined ? "" : e.prodline_name
+                            };
+                            console.log(postData);
+                            handlePost(postData);
+                        }}/>
+                    </div>
+                </Col>
+            </Row>
+            <span>{data.class}</span>
         </div>
-        <div className={flow_style.image}>
-            <img src={data.image} alt={"示例图片"}/>
-
-        </div>
-        <div className={flow_style.image}>
-            <img src={data.mask} alt={"mask"}/>
-
-        </div>
-        <span>
-                {data.class}
-            </span>
-    </div>;
+    ;
     return (
         analyzing ? <div className="spin">
             <Spin tip={"正在分析图片"}/>
