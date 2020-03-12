@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from "react"
 import {withRouter} from "react-router";
-import {Breadcrumb, Descriptions, Row, Col, Card, Tabs, Table, Button, message} from 'antd';
+import {Breadcrumb, Descriptions, Row, Col, Card, Tabs, Table, Button, message, Icon, Menu} from 'antd';
 import {genPieGraph, GenColumns} from "../../../Components/Prodline/detail";
 import ReactEcharts from "echarts-for-react";
 import style from './index.module.scss';
@@ -39,13 +39,15 @@ const PageProdlineDetail = withRouter((prop) => {
         <div>
             <Breadcrumb>
                 <Breadcrumb.Item href={"/"}>
-                    屏幕表面缺陷管理系统
+                    <Icon type={'home'}/>
+                    <span>系统</span>
                 </Breadcrumb.Item>
                 <Breadcrumb.Item href={"/prodline/"}>
-                    生产线管理
+                    <Icon type={'build'}/>
+                    <span>生产线管理</span>
                 </Breadcrumb.Item>
-                <Breadcrumb.Item>
-                    {id}
+                <Breadcrumb.Item href={`/prodline/${id}`}>
+                    <span>生产线序号： {id}</span>
                 </Breadcrumb.Item>
             </Breadcrumb>
             <Row>

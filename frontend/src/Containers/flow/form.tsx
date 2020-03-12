@@ -57,7 +57,7 @@ const IForm = (props: IFormProps) => {
         <div>
             <div className={styles.root}>
                 <Form style={{background: "white"}} className={styles.hbox}>
-                    <Form.Item label="选择图片">
+                    <Form.Item>
                         {getFieldDecorator('image', {
                             valuePropName: 'fileList',
                             getValueFromEvent: normFile,
@@ -68,7 +68,7 @@ const IForm = (props: IFormProps) => {
                                        setPicSize(state.fileList.length);
                                    }}>
                             <Button disabled={picSize !== 0}>
-                                <Icon type="upload"/>上传一张图片
+                                <Icon type="folder-open"/>选择一张图片
                             </Button>
                         </Upload>)}
                     </Form.Item>
@@ -76,7 +76,7 @@ const IForm = (props: IFormProps) => {
                         {getFieldDecorator('prodline_name')(<Input/>)}
                     </Form.Item>
                     <Form.Item>
-                        <Button onClick={handleSubmit} icon={"plus-circle"} type={"primary"}>确认上传</Button>
+                        <Button onClick={handleSubmit} icon={"upload"} type={"primary"}>确认上传</Button>
                     </Form.Item>
                     <Form.Item label="True/False">
                         {getFieldDecorator('radio-group')(

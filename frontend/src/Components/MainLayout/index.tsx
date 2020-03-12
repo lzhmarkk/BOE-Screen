@@ -38,14 +38,14 @@ const MainLayout = (props: { children: ReactElement }) => {
                         <span>统计和报表</span>
                     </Menu.Item>
                     <Menu.Item key="4">
-                        <Link to={"/help"}/>
-                        <Icon type={'compass'}/>
-                        <span>帮助</span>
-                    </Menu.Item>
-                    <Menu.Item key="5">
                         <Link to={"/account"}/>
                         <Icon type={'user'}/>
                         <span>个人账户</span>
+                    </Menu.Item>
+                    <Menu.Item key="5">
+                        <Link to={"/help"}/>
+                        <Icon type={'compass'}/>
+                        <span>帮助</span>
                     </Menu.Item>
                 </Menu>
             </Sider>

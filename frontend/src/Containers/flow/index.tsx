@@ -1,11 +1,10 @@
 import React, {useState} from "react"
-import {Button, message, Spin, Steps, Carousel, Row, Col, Empty, Card} from "antd";
+import {Button, message, Spin, Steps, Carousel, Row, Col, Empty, Card, Icon} from "antd";
 import Axios from 'axios';
 import flow_style from "./index.module.scss"
 import IPictureForm, {IFormPayload} from "./form";
 import APIList from "../../API";
 
-//Flow页面图片信息的接口
 interface PageFlowData {
     image: string | undefined//图片
     image_name: string//图片名
@@ -61,9 +60,11 @@ const PageFlow = () => {
                            }}>
                         <Step key={0} title="原图"
                               status="finish" description="原始图片"
+                              icon={<Icon type={'picture'}/>}
                               disabled={sliding}/>
                         <Step key={1} title="污点或损坏"
                               status="finish" description="分析得到污点或者损坏"
+                              icon={<Icon type={'line-chart'}/>}
                               disabled={sliding}/>
                     </Steps>
                     <Carousel ref={e => setCarouselRef(e)}
