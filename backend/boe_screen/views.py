@@ -3,6 +3,7 @@ from rest_framework.parsers import JSONParser
 from .utils import *
 from .serializer import *
 from rest_framework import status
+from PIL import Image
 
 
 # 动态分析页
@@ -13,7 +14,8 @@ def api_flow(request):
         img = base2pil(data['image'])
 
         image_name = data['image_name']
-        mask, pred, weights, area = get_mask(img, analyze=False)
+        mask, pred, weights, area = get_mask(img, analyze=True)
+        mask = Image.fromarray(mask.astype('uint8')).resize(img.size)
 
         prodline_name = data['prodline_name']
         """try:
@@ -34,9 +36,10 @@ def api_flow(request):
             pass
 
         data = serializer.data
-        data['image'] = pil2base(data['image'], 'PNG')
-        data['mask'] = pil2base(data['mask'], 'PNG')
-        data['class'] = data['pred']
+        data['image'] = pil2base(img, 'PNG')
+        data['mask'] = pil2base(mask, 'PNG')
+        data['class'] = "True Bad" if data['pred'] == 1 else "False Bad"
+        data['pred'] = "pred"
         return JsonResponse(data, status=status.HTTP_200_OK)
 
 

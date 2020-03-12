@@ -24,7 +24,7 @@ class Trainer(object):
         # Define Tensorboard Summary
         self.summary = TensorboardSummary(self.saver.experiment_dir)
         self.writer = self.summary.create_summary()
-        self.save_dir = os.path.join('save', 'checkpoint.pth.tar')
+        self.save_dir = os.path.join('../save', 'checkpoint.pth.tar')
         self.cuda = args.cuda
         self.sync_train = args.sync_train
         print("同时训练两个分支" if self.sync_train else "交替训练两个分支")
@@ -204,6 +204,7 @@ class Trainer(object):
         if new_pred > self.best_pred:
             is_best = True
             self.best_pred = new_pred
+            self.save_checkpoint()
 
     def run(self, image):
         """
@@ -218,22 +219,24 @@ class Trainer(object):
         self.evaluator1.reset()
         # 处理输入
         # image = [].append(image)
-        sample = transform({'image': image, 'label': None})
+        sample = transform({'image': image, 'label': None, 'category': None})
         image = sample['image']
-        image = torch.stack((image, image, image, image))  # todo
+        # 拼接成指定大小
+        image = torch.stack([image for _ in range(self.args.batch_size)])
         if self.args.cuda:
             image = image.cuda()
         with torch.no_grad():
-            output = self.model(image)
+            output_mask, output_category = self.model(image)
 
         # 处理输出
         # output = output[:1]
-        rgb_mask = torch.max(output[0], 0)[1].detach().cpu().numpy()
-        return np.array(rgb_mask)
+        rgb_mask = torch.max(output_mask[0], 0)[1].detach().cpu().numpy()
+        rgb_category = torch.max(output_category[0], 0)[1].detach().cpu().numpy()
+        return np.array(rgb_mask), np.array(rgb_category)
 
     def save_checkpoint(self):
         if not os.path.exists('../../save'):
-            os.mkdir('../../save')
+            os.makedirs('../../save')
         torch.save({
             'state_dict': self.model.module.state_dict(),
             'optimizer': self.optimizer.state_dict(),

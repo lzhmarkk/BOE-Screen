@@ -20,16 +20,15 @@ def get_mask(image, analyze=True):
     # shape: h x w
     if analyze:
         # use model
-        mask = analyze_image(image)
+        mask, category = analyze_image(image)
         # mask (numpy array) h x w
-        dict = get_class_dict(mask, mask.shape)
+        dict = get_class_dict(category, category.shape)
         area = get_area(mask)
         mask = decode_segmap(mask, dataset='mydataset')
         mask = mask * 255
         return mask, _max(dict), dict, area
     else:
-        _image = numpy.array(image)
-        return image, 0, {}, _image.shape[0] * _image.shape[1]
+        return numpy.ones(image.size), 0, {}, -1
 
 
 def get_class_dict(mask, shape):
@@ -40,7 +39,7 @@ def get_class_dict(mask, shape):
     """
     assert mask.shape == shape
     classes = numpy.unique(mask)
-    classes = classes[1:]  # ignore background
+    # classes = classes[1:]  # ignore background
     masks = mask == classes[:, None, None]
 
     dict = {}
@@ -99,19 +98,21 @@ def base2pil(base):
     :return: PIL格式的图片
     """
     base64_data = re.sub('^data:image/.+;base64,', '', base)
-    return _Image.open(BytesIO(base64.b64decode(base64_data)))
+    return _Image.open(BytesIO(base64.b64decode(base64_data))).convert('RGB')
 
 
 if __name__ == '__main__':
     # test 先图片转化成base64,再测试从base64转化成图片并获取mask
     img = _Image.open(os.path.join('/run/media/lzhmark/shared/boe-screen/all/images/19k-Final-9941-1',
                                    '1a54960042mcj_1065_448_1.jpg'))
+    img = _Image.open(os.path.join('/run/media/lzhmark/shared/boe-screen/all/images/19k-Final-fix-2202-2',
+                                   '1a54950006kfq_1622_526_1_1.jpg'))
 
     base64_data = pil2base(img, 'jpeg')
     print(base64_data)
     img = base2pil(base64_data)
     img.show("转换后的Image")
-    mask, pred, weights, area = get_mask(img, analyze=False)
+    mask, pred, weights, area = get_mask(img, analyze=True)
 
     # 展示结果
     if mask is not None:

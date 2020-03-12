@@ -1,15 +1,14 @@
-import React from "react";
+import React, {useState} from "react";
 import {FormComponentProps} from "antd/lib/form";
 import {Button, Form, Icon, Upload, DatePicker, Input, Radio} from "antd";
 
 import styles from './index.module.scss'
-//导入css，不管
+import APIList from "../../API";
 
 const {RangePicker} = DatePicker;
 
-//这个表单的返回值Payload（也就是填写的数据）的接口，相当于返回值
 export interface IFormPayload {
-    image: any,//头像
+    image: any,
     prodline_name: string,
 }
 
@@ -19,8 +18,8 @@ export interface IFormProps extends FormComponentProps {
 }
 
 const IForm = (props: IFormProps) => {
+    const [picSize, setPicSize] = useState(0);
     const normFile = (e: any) => {
-        //console.log('文件如下:', e);
         if (Array.isArray(e)) {
             return e;
         }
@@ -31,7 +30,6 @@ const IForm = (props: IFormProps) => {
         props.form.validateFields((err, value: any) => {
             if (err)
                 return;
-            //console.log('Received values of form: ', value);
             props.onSubmit(value);
         });
     };
@@ -47,7 +45,14 @@ const IForm = (props: IFormProps) => {
             labelCol: {span: 8, offset: 0},
             wrapperCol: {span: 16, offset: 0},
         };
-
+    const beforeUpload = (file: any, files: any) => {
+        const r = new FileReader();
+        r.readAsDataURL(file);
+        r.onload = (e: any) => {
+            file.thumbUrl = e.target.result;
+        };
+        return false;
+    };
     return (
         <div>
             <div className={styles.root}>
@@ -56,10 +61,17 @@ const IForm = (props: IFormProps) => {
                         {getFieldDecorator('image', {
                             valuePropName: 'fileList',
                             getValueFromEvent: normFile,
-                        })(<Upload name="logo" listType="picture">
-                            <Button>
-                                <Icon type="upload"/>点击选择图片
-                            </Button>
+                        })(<Upload name="picture" listType="picture"
+                                   beforeUpload={beforeUpload}
+                                   accept={".png,.jpg,.jpeg,.bmp"}
+                                   onChange={(state: any) => {
+                                       setPicSize(state.fileList.length);
+                                   }}>
+                            {picSize === 0 ?
+                                <Button>
+                                    <Icon type="upload"/>点击选择图片
+                                </Button> : <React.Fragment/>
+                            }
                         </Upload>)}
                     </Form.Item>
                     <Form.Item>
