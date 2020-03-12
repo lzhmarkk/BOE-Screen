@@ -295,15 +295,8 @@
     },
     "ProdLineInfo": {
       "type": "object",
-      "required": [
-        "prod_line_id",
-        "prod_line_name",
-        "image_amount",
-        "images",
-        "weights"
-      ],
       "properties": {
-        "prod_line_id": {
+        "prodline_id": {
           "type": "integer",
           "example": 12,
           "minimum": 0
@@ -312,21 +305,61 @@
           "type": "string",
           "example": "1a0q930034bcr_0738_0083_4_-234"
         },
-        "image_amount": {
-          "type": "integer",
+        "total": {
+          "type": "number",
           "example": 500,
           "minimum": 0
         },
-        "images": {
+        "bad_count": {
+          "type": "number",
+          "example": 12,
+          "minimum": 0
+        },
+        "bad_ratio": {
+          "type": "number",
+          "example": 0.76,
+          "minimum": 0
+        },
+        "avg_dirt_size": {
+          "type": "number",
+          "example": 400,
+          "minimum": 0
+        },
+        "min_dirt_size": {
+          "type": "number",
+          "example": 20,
+          "minimum": 0
+        },
+        "max_dirt_size": {
+          "type": "number",
+          "example": 50131,
+          "minimum": 0
+        },
+        "avg_bad_size": {
+          "type": "number",
+          "example": 400,
+          "minimum": 0
+        },
+        "min_bad_size": {
+          "type": "number",
+          "example": 20,
+          "minimum": 0
+        },
+        "max_bad_size": {
+          "type": "number",
+          "example": 50131,
+          "minimum": 0
+        },
+        "dirt_images": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/ImageGet"
+            "$ref": "#/definitions/ProdLineDirtImage"
           }
         },
-        "weights": {
+        "bad_images": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Weight"
+            "$ref": "#/definitions/ProdLineBadImage"
           }
         }
       }
@@ -410,6 +443,74 @@
           "type": "number",
           "example": 12,
           "minimum": 0
+        }
+      }
+    },
+    "ProdLineDirtImage": {
+      "type": "object",
+      "properties": {
+        "image_id": {
+          "type": "integer",
+          "example": 112
+        },
+        "image_name": {
+          "type": "string",
+          "example": "1a0q930034bcr_0738_0083_4_-234.711_-500.616.jpg"
+        },
+        "time": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2020-03-14 12:04:33"
+        },
+        "class": {
+          "type": "string",
+          "example": "污点"
+        },
+        "size": {
+          "type": "string",
+          "example": "1224*900"
+        },
+        "dirt": {
+          "type": "string",
+          "example": "900"
+        },
+        "dirt_radio": {
+          "type": "number",
+          "example": 0.131
+        }
+      }
+    },
+    "ProdLineBadImage": {
+      "type": "object",
+      "properties": {
+        "image_id": {
+          "type": "integer",
+          "example": 112
+        },
+        "image_name": {
+          "type": "string",
+          "example": "1a0q930034bcr_0738_0083_4_-234.711_-500.616.jpg"
+        },
+        "time": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2020-03-14 12:04:33"
+        },
+        "class": {
+          "type": "string",
+          "example": "损坏"
+        },
+        "size": {
+          "type": "string",
+          "example": "1224*900"
+        },
+        "bad": {
+          "type": "string",
+          "example": "900"
+        },
+        "bad_radio": {
+          "type": "number",
+          "example": 0.131
         }
       }
     }

@@ -5,6 +5,7 @@ import PageProdlineDetail from "./detail";
 
 const PageProdlineRoutes = () => <Switch>
     <Route exact path="/prodline" render={() => <PageProdlineIndex/>}/>
+    <Route exact path="/prodline/index" render={() => <PageProdlineIndex/>}/>
     <Route path="/prodline/:id" render={() => <PageProdlineDetail/>}/>
 </Switch>;
 
