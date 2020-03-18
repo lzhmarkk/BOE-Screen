@@ -6,7 +6,7 @@ import PageFlowDetail from "./detail/index";
 
 const PageFlowRoutes = () => <Switch>
     <Route exact path="/flow" render={() => <PageFlow/>}/>
-    <Route path="/flow/:kind" render={() => <PageFlowDetail/>}/>
+    <Route path="/flow/:kind" render={()=><PageFlowDetail/>}/>
 </Switch>;
 
 export default PageFlowRoutes

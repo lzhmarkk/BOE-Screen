@@ -44,20 +44,28 @@ const PageFlow = () => {
             );
     };
     //todo: 增加图片的分类的一个展示(PageFlowData的class字段)
+    function moveTab() {
+        if (current === 0) {
+            carouselRef.next();
+            setCurrent(1);
+        } else if (current === 1) {
+            moveTabTo0();
+        }
+    }
+
+    function moveTabTo0() {
+        if (current === 1) {
+            carouselRef.prev();
+            setCurrent(0);
+        }
+    }
+
     const content = <div>
             <Row>
                 <Col span={20}>
                     <Steps type="navigation" size="small" current={current}
                            className={flow_style.step}
-                           onChange={() => {
-                               if (current === 0) {
-                                   carouselRef.next();
-                                   setCurrent(1);
-                               } else if (current === 1) {
-                                   carouselRef.prev();
-                                   setCurrent(0);
-                               }
-                           }}>
+                           onChange={moveTab}>
                         <Step key={0} title="原图"
                               status="finish" description="原始图片"
                               icon={<Icon type={'picture'}/>}
@@ -102,6 +110,7 @@ const PageFlow = () => {
                             };
                             console.log(postData);
                             handlePost(postData);
+                            moveTabTo0();
                         }}/>
                     </div>
                 </Col>

@@ -29,7 +29,7 @@ const PageProdlineDetail = withRouter((prop) => {
     }, []);
 
     const Action = (props: { record: any }) => <div>
-        <Button onClick={() => window.location.href = `/image/${props.record.image_id}`}>查看详情</Button>
+        <Button onClick={() => window.location.href = `/flow/${props.record.image_id}`}>查看详情</Button>
     </div>;
     const genPieCharts = genPieGraph(data);
     const getRatio = () => {
