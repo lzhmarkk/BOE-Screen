@@ -103,9 +103,10 @@ const PageFlow = () => {
                 <Col span={4}>
                     <div className={flow_style.upload}>
                         <IPictureForm onSubmit={(e: IFormPayload) => {
+                            console.log(e);
                             const postData = {
                                 "image": e.image === undefined ? undefined : e.image[0].originFileObj.thumbUrl,
-                                "image_name": "image name",
+                                "image_name": e.image === undefined ? undefined : e.image[0].name,
                                 "prodline_name": e.prodline_name === undefined ? "" : e.prodline_name
                             };
                             console.log(postData);

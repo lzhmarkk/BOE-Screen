@@ -10,10 +10,12 @@ class ProdLine(models.Model):
 class Image(models.Model):
     id = models.AutoField(primary_key=True)
     image_name = models.TextField(max_length=100, null=False)
-    image = models.ImageField(null=False)
-    time = models.DateTimeField(null=False)
-    mask = models.ImageField(null=True)
+    image = models.TextField(null=True)
+    time = models.DateTimeField(null=True)
+    mask = models.TextField(null=True)
     pred = models.PositiveIntegerField(null=True)
+    size = models.TextField(max_length=20, null=True)
+    area = models.IntegerField(default=0)
 
     prod_line = models.ForeignKey(to=ProdLine, on_delete=models.CASCADE, null=True)
 

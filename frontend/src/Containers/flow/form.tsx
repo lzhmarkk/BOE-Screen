@@ -73,7 +73,9 @@ const IForm = (props: IFormProps) => {
                         </Upload>)}
                     </Form.Item>
                     <Form.Item>
-                        {getFieldDecorator('prodline_name')(<Input/>)}
+                        {getFieldDecorator('prodline_name', {
+                            rules: [{required: true, message: "请输入生产线名称"}],
+                        })(<Input/>)}
                     </Form.Item>
                     <Form.Item>
                         <Button onClick={handleSubmit} icon={"upload"} type={"primary"}>确认上传</Button>

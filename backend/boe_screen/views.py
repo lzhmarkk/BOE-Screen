@@ -14,30 +14,37 @@ def api_flow(request):
         img = base2pil(data['image'])
 
         image_name = data['image_name']
-        mask, pred, weights, area = get_mask(img, analyze=True)
+        mask, pred, weights, area = get_mask(img, analyze=False)
         mask = Image.fromarray(mask.astype('uint8')).resize(img.size)
+        img = pil2base(img, 'PNG')
+        mask = pil2base(mask, 'PNG')
 
         prodline_name = data['prodline_name']
-        """try:
+        try:
             prodline = ProdLine.objects.get(prod_line_name=prodline_name)
         except ProdLine.DoesNotExist:
             prodline = ProdLine.objects.create(prod_line_name=prodline_name, image_size=0)
-        """
+
         data = {
             'image': img,
             'image_name': image_name,
             'mask': mask,
             'pred': pred,
-            # 'prodline': prodline
+            'prodline_id': prodline.id,
+            'weights': weights,
+            'size': "1224 * 900",
+            'area': area
         }
         serializer = ApiFlowPostSerializer(data=data)
         if serializer.is_valid():
-            # serializer.save()
-            pass
+            serializer.save()
+        else:
+            print(serializer.data)
+            print(serializer.errors)
 
         data = serializer.data
-        data['image'] = pil2base(img, 'PNG')
-        data['mask'] = pil2base(mask, 'PNG')
+        data['image'] = img
+        data['mask'] = mask
         data['class'] = "True Bad" if data['pred'] == 1 else "False Bad"
         data['pred'] = "pred"
         return JsonResponse(data, status=status.HTTP_200_OK)
