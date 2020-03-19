@@ -22,16 +22,27 @@ def get_mask(image, analyze=True):
         # use model
         mask, category = analyze_image(image)
         # mask (numpy array) h x w
-        dict = get_class_dict(category, category.shape)
-        area = get_area(mask)
-        mask = decode_segmap(mask, dataset='mydataset')
+        # todo category现在给出的是全100的矩阵 没有softmax
+        weights = get_class_weights(category, category.shape)
+        _class = _max(weights)
+        size = image.size
+        area = get_area(mask)  # 污点、坏块的大小
+        mask = decode_segmap(mask, dataset='all')
         mask = mask * 255
-        return mask, _max(dict), dict, area
+        mask = _Image.fromarray(mask.astype('uint8'))
+
+        # reshape
+        ratio = int((size[0] * size[1]) / (mask.size[0] * mask.size[1]))
+        mask = mask.resize(size)
+        area *= ratio
+        for i in weights:
+            weights[i] *= ratio
+        return mask, _class, size, area, weights
     else:
-        return numpy.ones(image.size), 0, {}, -1
+        return image, 0, (1224, 900), -1, {"demo": 1224 * 900}
 
 
-def get_class_dict(mask, shape):
+def get_class_weights(mask, shape):
     """
     :param mask: 二维像素图
     :param shape: 图片长宽Tuple
@@ -49,9 +60,8 @@ def get_class_dict(mask, shape):
     return dict
 
 
-def get_area(img):
-    h, w = img.shape
-    return h * w
+def get_area(mask):
+    return (mask != 0).sum()
 
 
 def _to_tensor(img):
@@ -102,23 +112,24 @@ def base2pil(base):
 
 
 if __name__ == '__main__':
+    os.chdir('./backend/')
     # test 先图片转化成base64,再测试从base64转化成图片并获取mask
     img = _Image.open(os.path.join('/run/media/lzhmark/shared/boe-screen/all/images/19k-Final-9941-1',
                                    '1a54960042mcj_1065_448_1.jpg'))
-    img = _Image.open(os.path.join('/run/media/lzhmark/shared/boe-screen/all/images/19k-Final-fix-2202-2',
-                                   '1a54950006kfq_1622_526_1_1.jpg'))
+    # img = _Image.open(os.path.join('/run/media/lzhmark/shared/boe-screen/all/images/19k-Final-fix-2202-2',
+    # '1a54950006kfq_1622_526_1_1.jpg'))
 
     base64_data = pil2base(img, 'jpeg')
-    print(base64_data)
+    # print(base64_data)
     img = base2pil(base64_data)
     img.show("转换后的Image")
-    mask, pred, weights, area = get_mask(img, analyze=True)
+    mask, pred, size, area, weights = get_mask(img, analyze=True)
 
     # 展示结果
     if mask is not None:
-        mask = _Image.fromarray(mask.astype('uint8'))
         mask.show("得到的mask")
     print("预测", pred)
+    print("总面积", size)
+    print("大小", area)
     print("权重", weights)
-    print("面积", area)
     exit(0)

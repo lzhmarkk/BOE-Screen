@@ -14,8 +14,7 @@ def api_flow(request):
         img = base2pil(data['image'])
 
         image_name = data['image_name']
-        mask, pred, weights, area = get_mask(img, analyze=False)
-        mask = Image.fromarray(mask.astype('uint8')).resize(img.size)
+        mask, pred, size, area, weights = get_mask(img, analyze=True)
         img = pil2base(img, 'PNG')
         mask = pil2base(mask, 'PNG')
 
@@ -32,9 +31,10 @@ def api_flow(request):
             'pred': pred,
             'prodline_id': prodline.id,
             'weights': weights,
-            'size': "1224 * 900",
+            'size': "{} * {}".format(size[0], size[1]),
             'area': area
         }
+        print(data)
         serializer = ApiFlowPostSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
@@ -44,9 +44,13 @@ def api_flow(request):
 
         data = serializer.data
         data['image'] = img
+        data['image_name'] = image_name
         data['mask'] = mask
         data['class'] = "True Bad" if data['pred'] == 1 else "False Bad"
         data['pred'] = "pred"
+        data['size'] = "{} * {}".format(size[0], size[1]),
+        data['area'] = int(area)  # type(area) = numpy.int64
+        data['ratio'] = int(area * 10000 / (size[0] * size[1]))
         return JsonResponse(data, status=status.HTTP_200_OK)
 
 

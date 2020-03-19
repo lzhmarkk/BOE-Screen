@@ -1,5 +1,5 @@
 import React, {useState} from "react"
-import {Button, message, Spin, Steps, Carousel, Row, Col, Empty, Card, Icon} from "antd";
+import {Button, message, Spin, Steps, Carousel, Row, Col, Empty, Card, Icon, Descriptions} from "antd";
 import Axios from 'axios';
 import flow_style from "./index.module.scss"
 import IPictureForm, {IFormPayload} from "./form";
@@ -11,6 +11,10 @@ interface PageFlowData {
     prodline_name: string//流水线名
     class: string | undefined//图片分类
     mask: string | undefined//图片mask
+    pred?: any
+    size?: string
+    area?: number
+    ratio?: number
 }
 
 const {Step} = Steps;
@@ -43,6 +47,7 @@ const PageFlow = () => {
                 }
             );
     };
+
     //todo: 增加图片的分类的一个展示(PageFlowData的class字段)
     function moveTab() {
         if (current === 0) {
@@ -62,7 +67,7 @@ const PageFlow = () => {
 
     const content = <div>
             <Row>
-                <Col span={20}>
+                <Col span={18}>
                     <Steps type="navigation" size="small" current={current}
                            className={flow_style.step}
                            onChange={moveTab}>
@@ -100,8 +105,8 @@ const PageFlow = () => {
                         </Card>
                     </Carousel>
                 </Col>
-                <Col span={4}>
-                    <div className={flow_style.upload}>
+                <Col span={6}>
+                    <Card className={flow_style.upload}>
                         <IPictureForm onSubmit={(e: IFormPayload) => {
                             console.log(e);
                             const postData = {
@@ -113,10 +118,16 @@ const PageFlow = () => {
                             handlePost(postData);
                             moveTabTo0();
                         }}/>
-                    </div>
+                    </Card>
+                    <Descriptions bordered className={flow_style.description}>
+                        <Descriptions.Item span={3} label={"类型"}>{data.class}</Descriptions.Item>
+                        <Descriptions.Item span={3} label={"pred"}>{data.pred}</Descriptions.Item>
+                        <Descriptions.Item span={3} label={"图片大小"}>{data.size}</Descriptions.Item>
+                        <Descriptions.Item span={3} label={"异常大小(像素)"}>{data.area}</Descriptions.Item>
+                        <Descriptions.Item span={3} label={"异常占比"}>{data.ratio ? data.ratio / 100 : 0}%</Descriptions.Item>
+                    </Descriptions>
                 </Col>
             </Row>
-            <span>{data.class}</span>
         </div>
     ;
     return (

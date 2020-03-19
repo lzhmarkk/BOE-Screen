@@ -1,5 +1,6 @@
 .upload {
-  float: right;
+  margin-left: 40px;
+  margin-bottom: 20px;
 }
 
 .sign {
@@ -14,6 +15,11 @@
   margin-left: 25px;
 }
 
+.form {
+  alignment: center;
+  text-align: center;
+}
+
 .spin {
   text-align: center;
   background: rgba(0, 0, 0, 0.05);
@@ -26,4 +32,8 @@
 .step {
   marginBottom: 60;
   boxShadow: '0px -1px 0 0 #e8e8e8 inset';
+}
+
+.description {
+  margin-left: 40px;
 }

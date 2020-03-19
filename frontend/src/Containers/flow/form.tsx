@@ -55,8 +55,8 @@ const IForm = (props: IFormProps) => {
     };
     return (
         <div>
-            <div className={styles.root}>
-                <Form style={{background: "white"}} className={styles.hbox}>
+            <div className={styles.form}>
+                <Form style={{background: "white"}}>
                     <Form.Item>
                         {getFieldDecorator('image', {
                             valuePropName: 'fileList',
@@ -79,14 +79,6 @@ const IForm = (props: IFormProps) => {
                     </Form.Item>
                     <Form.Item>
                         <Button onClick={handleSubmit} icon={"upload"} type={"primary"}>确认上传</Button>
-                    </Form.Item>
-                    <Form.Item label="True/False">
-                        {getFieldDecorator('radio-group')(
-                            <Radio.Group>
-                                <Radio value={0}>False</Radio>
-                                <Radio value={1}>True</Radio>
-                            </Radio.Group>,
-                        )}
                     </Form.Item>
                 </Form>
             </div>
