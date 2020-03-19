@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react"
 import {genGraphs} from "../../Components/stats"
 import Axios from "axios";
 import APIList from "../../API";
-import {message} from "antd";
+import {message, Table} from "antd";
 
 const PageStats = () => {
     const [statsData, setStatsData] = useState(undefined);
@@ -24,6 +24,57 @@ const PageStats = () => {
             })
     }, []);
     const genEcharts = genGraphs(statsData);
+    const dataSource = [
+        {
+            id: 'line1',
+            count: '100',
+            true_rate: '50/120',
+            false_rate: '70/120',
+            info: 'None',
+        },
+        {
+            id: 'line2',
+            count: '123',
+            true_rate: '3/5',
+            false_rate: '2/5',
+            info: 'None',
+        },
+        {
+            id: 'line3',
+            count: '6',
+            true_rate: '33/50',
+            false_rate: '17/50',
+            info: 'lzhsb',
+        },
+    ];
+    const columns = [
+        {
+            title: '生产线id',
+            dataIndex: 'id',
+            key: 'id',
+        },
+        {
+            title: '图片数量',
+            dataIndex: 'count',
+            key: 'count',
+        },
+        {
+            title: '正确率',
+            dataIndex: 'true_rate',
+            key: 'true_rate',
+        },
+        {
+            title: '错误率',
+            dataIndex: 'false_rate',
+            key: 'false_rate',
+        },
+        {
+            title: '备注信息',
+            dataIndex: 'info',
+            key: 'info',
+        }
+    ];
+
     return (
         <div>
             <span>
@@ -32,6 +83,7 @@ const PageStats = () => {
             </span>
             <div>
                 {genEcharts}
+                <Table dataSource={dataSource} columns={columns} />
             </div>
         </div>
     )
