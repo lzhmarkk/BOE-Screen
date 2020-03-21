@@ -47,7 +47,7 @@ class ApiFlowPostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Image
-        fields = ['image_name', 'image', 'time', 'mask', 'pred', 'size', 'area', 'prodline_id']
+        fields = ['image_name', 'image', 'time', 'mask', 'pred', 'size', 'area', 'prodline_id', 'weight1', 'weight2']
 
     def create(self, validated_data):
         validated_data['time'] = datetime.now()
@@ -56,6 +56,13 @@ class ApiFlowPostSerializer(serializers.ModelSerializer):
 
         weights = validated_data.get('weights')
         prodline = validated_data.get('prod_line')
+        prodline.image_size += 1
+        if validated_data.get('pred') == "1":
+            prodline.count1 += 1
+        else:
+            prodline.count2 += 1
+        prodline.save()
+        """
         if weights is not None:
             for _, _class in enumerate(weights):
                 value = weights[_class]
@@ -64,13 +71,11 @@ class ApiFlowPostSerializer(serializers.ModelSerializer):
                 # update production line
                 try:
                     prod_line_class = prodline.prodlineclass_set.get(name=_class)
-                    prodline.image_size += 1
-                    prodline.save()
                     prod_line_class.value += 1
                     prod_line_class.save()
-                except ProdLine.DoesNotExist:
-                    # ProdLineClass.objects.create(name=_class, value=1, prod_line=prodline)
-                    pass
+                except ProdLineClass.DoesNotExist:
+                    ProdLineClass.objects.create(name=_class, value=1, prod_line=prodline)
+        """
         return img
 
 

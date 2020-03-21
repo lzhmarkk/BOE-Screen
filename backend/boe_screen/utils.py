@@ -20,11 +20,11 @@ def get_mask(image, analyze=True):
     # shape: h x w
     if analyze:
         # use model
-        mask, category = analyze_image(image)
+        mask, classes = analyze_image(image)
         # mask (numpy array) h x w
-        # todo category现在给出的是全100的矩阵 没有softmax
-        weights = get_class_weights(category, category.shape)
-        _class = _max(weights)
+        # weights = get_class_weights(category, category.shape)
+        weights = {"1": classes[1], "2": classes[2]}
+        _class = numpy.argmax(classes)
         size = image.size
         area = get_area(mask)  # 污点、坏块的大小
         mask = decode_segmap(mask, dataset='all')
@@ -39,7 +39,7 @@ def get_mask(image, analyze=True):
             weights[i] *= ratio
         return mask, _class, size, area, weights
     else:
-        return image, 0, (1224, 900), -1, {"demo": 1224 * 900}
+        return image, 1, (1224, 900), 1000, {"1": 6666, "2": 2333}
 
 
 def get_class_weights(mask, shape):

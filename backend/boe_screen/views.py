@@ -30,27 +30,22 @@ def api_flow(request):
             'mask': mask,
             'pred': pred,
             'prodline_id': prodline.id,
-            'weights': weights,
+            'weight1': weights["1"],
+            'weight2': weights["2"],
             'size': "{} * {}".format(size[0], size[1]),
             'area': area
         }
-        print(data)
         serializer = ApiFlowPostSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
         else:
-            print(serializer.data)
             print(serializer.errors)
 
         data = serializer.data
-        data['image'] = img
-        data['image_name'] = image_name
-        data['mask'] = mask
-        data['class'] = "True Bad" if data['pred'] == 1 else "False Bad"
-        data['pred'] = "pred"
-        data['size'] = "{} * {}".format(size[0], size[1]),
+        data['prodline_name'] = prodline.prod_line_name
         data['area'] = int(area)  # type(area) = numpy.int64
         data['ratio'] = int(area * 10000 / (size[0] * size[1]))
+        data['weights'] = {"1": data["weight1"], "2": data["weight2"]}
         return JsonResponse(data, status=status.HTTP_200_OK)
 
 

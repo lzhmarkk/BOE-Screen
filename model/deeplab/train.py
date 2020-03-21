@@ -167,6 +167,9 @@ class Trainer(object):
         self.evaluator2.reset()
         tbar = tqdm(self.val_loader, desc='\r')
         test_loss1, test_loss2 = 0.0, 0.0
+        dic = {"11": 0, "12": 0, "21": 0, "22": 0}
+        reliability_sum = 0
+        reliability_count = 0
         for i, sample in enumerate(tbar):
             image, target, category = sample['image'], sample['label'], sample['category']
             if self.args.cuda:
@@ -185,6 +188,32 @@ class Trainer(object):
             self.evaluator1.add_batch(target1, pred1)
             self.evaluator2.add_batch(target2, pred2)
 
+            res = {}
+            # pred: batch_size * h * w
+            for index in range(pred2.shape[0]):  # 对一个batch内的每一张图片
+                target_category_mask, pred_category_mask = target2[index], pred2[index]  # 预测的分类
+                # pred_classes 1和2的统计
+                _except_class, pred_classes = np.unique(target_category_mask), np.bincount(
+                    pred_category_mask.reshape(1, -1).squeeze())
+                # 概率最大的分类
+                _pred_class = np.argmax(pred_classes)
+                # 可信度
+                reliability = pred_classes[_pred_class] / pred_classes.sum()
+                res[index] = (_except_class.astype('uint').tolist(), _pred_class, 100 * reliability)
+                if _except_class != 0 and _pred_class != 0:
+                    if _except_class == 1 and _pred_class == 1:
+                        dic["11"] += 1
+                    elif _except_class == 1 and _pred_class == 2:
+                        dic["12"] += 1
+                    elif _except_class == 2 and _pred_class == 1:
+                        dic["21"] += 1
+                    elif _except_class == 2 and _pred_class == 2:
+                        dic["22"] += 1
+                reliability_sum += reliability
+                reliability_count += 1
+            # print("当前({}, {})：分类状态(期望,预测,可信度)：{}".format(epoch, i, res))
+            print("reliability mean", reliability_sum / reliability_count)
+
         # Fast test during the training
         Acc = self.evaluator1.Pixel_Accuracy()
         Acc_class = self.evaluator1.Pixel_Accuracy_Class()
@@ -199,6 +228,7 @@ class Trainer(object):
         print("Acc:{}, Acc_class:{}, mIoU:{}, fwIoU: {}".format(Acc, Acc_class, mIoU, FWIoU))
         print("Acc2:{}, Acc_class2:{}, mIoU2:{}, fwIoU2: {}".format(Acc2, Acc_class2, mIoU2, FWIoU2))
         print('Loss: %.3f/%.3f' % (test_loss1, test_loss2))
+        print('Dic: ', dic)
 
         new_pred = mIoU
         if new_pred > self.best_pred:
@@ -231,8 +261,10 @@ class Trainer(object):
         # 处理输出
         # output = output[:1]
         rgb_mask = torch.max(output_mask[0], 0)[1].detach().cpu().numpy()
-        rgb_category = torch.max(output_category[0], 0)[1].detach().cpu().numpy()
-        return np.array(rgb_mask), np.array(rgb_category)
+        # rgb_category = torch.max(output_category[0], 0)[1].detach().cpu().numpy()
+        pred_category_mask = np.argmax(output_category.data.cpu().numpy(), axis=1)[0]
+        pred_classes = np.bincount(pred_category_mask.reshape(1, -1).squeeze())
+        return np.array(rgb_mask), pred_classes
 
     def save_checkpoint(self):
         if not os.path.exists('../../save'):
