@@ -18,16 +18,23 @@ import {
 } from "antd";
 import flow_style from "../index.module.scss"
 import APIList from "../../../API";
-import IEditImageForm, {IEditImageFormPayload} from "../../../Components/flow";
+import IEditImageForm, {genClass, genWeights, IEditImageFormPayload} from "../../../Components/flow";
 
 interface IPageFlowDetail extends RouteComponentProps {
-    image_name: string
-    image_size: string
-    class?: string
-    bad_size?: number
-    bad_ratio?: number
-    dirt_size?: number
-    dirt_ratio?: number
+    image?: string//图片
+    time?: any
+    mask?: string//图片mask
+    image_name?: string//图片名
+    prodline_id?: number
+    prodline_name?: string//流水线名
+    pred?: number
+    size?: string
+    area?: number
+    ratio?: number
+    weights?: {
+        "1": number
+        "2": number
+    }
 }
 
 const {Step} = Steps;
@@ -41,20 +48,11 @@ const PageFlowDetail = withRouter((prop) => {
     const [modal, setModal] = useState(false);
     const [modalDelete, setModalDelete] = useState(false);
 
-    const [data, setData] = useState<any>({
-        image: undefined,
-        image_name: "null",
-        prodline_name: "null",
-        class: undefined,
-        mask: undefined
-    });
+    const [data, setData] = useState<IPageFlowDetail | any>({});
 
-    const handlePost = (data: any) => {
-        Axios.post(APIList.image(kind), data)
-            .then(res => {
-                console.log(res);
-                update();
-            })
+    const handlePut = (data: any) => {
+        Axios.put(APIList.image(kind), data)
+            .then(update)
             .catch(err => {
                 console.log(err);
                 message.error("更新图片失败")
@@ -71,8 +69,8 @@ const PageFlowDetail = withRouter((prop) => {
     const update = () => {
         Axios.get(APIList.image(kind))
             .then(res => {
-                console.log(res);
-                setData(res);
+                console.log("收到数据", res);
+                setData(res.data);
                 setLoading(false);
                 message.success(`成功获取图片${kind}信息`);
             })
@@ -128,28 +126,31 @@ const PageFlowDetail = withRouter((prop) => {
                 <Card>
                     <Descriptions bordered>
                         <Descriptions.Item label={'图片名'} span={2}>
-                            pic0
+                            {data.image_name}
                         </Descriptions.Item>
                         <Descriptions.Item label={'图片大小'}>
-                            1224 * 900
+                            {data.size}
+                        </Descriptions.Item>
+                        <Descriptions.Item label={'生产线序号'} span={2}>
+                            {data.prodline_id}
+                        </Descriptions.Item>
+                        <Descriptions.Item label={'生产线名'}>
+                            <a href={`/prodline/${data.prodline_id}`}>{data.prodline_name}</a>
                         </Descriptions.Item>
                         <Descriptions.Item label={'图片类型'} span={2}>
-                            损坏
+                            {genClass(data.pred)}
                         </Descriptions.Item>
                         <Descriptions.Item label={'上传时间'}>
-                            2020-4-8 12:41:41
+                            {data.time}
                         </Descriptions.Item>
-                        <Descriptions.Item label={'损坏大小(像素)'} span={2}>
-                            19319
+                        <Descriptions.Item label={(data.pred === 1 ? '损坏' : '污点') + '大小(像素)'} span={2}>
+                            {data.area}
                         </Descriptions.Item>
-                        <Descriptions.Item label={'损坏占比%'}>
-                            1.41%
+                        <Descriptions.Item label={(data.pred === 1 ? '损坏' : '污点') + '占比%'}>
+                            {data.ratio ? data.ratio / 100 + "%" : undefined}
                         </Descriptions.Item>
-                        <Descriptions.Item label={'污点大小(像素)'} span={2}>
-                            90013
-                        </Descriptions.Item>
-                        <Descriptions.Item label={'污点占比%'}>
-                            0.4%
+                        <Descriptions.Item span={3} label={"权重"}>
+                            {genWeights(data.weights)}
                         </Descriptions.Item>
                     </Descriptions>
                 </Card>
@@ -199,7 +200,7 @@ const PageFlowDetail = withRouter((prop) => {
                     "class": e.class
                 };
                 console.log("表单数据", editImage);
-                handlePost(editImage);
+                handlePut(editImage);
             }}
             modalOpen={modal}
             setModalOpen={setModal}/>

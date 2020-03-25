@@ -3,7 +3,6 @@ from rest_framework.parsers import JSONParser
 from .utils import *
 from .serializer import *
 from rest_framework import status
-from PIL import Image
 
 
 # 动态分析页
@@ -55,29 +54,70 @@ def api_image(request, id):
     if request.method == 'GET':
         try:
             image = Image.objects.get(id=id)
-            weights = image.imageclass_set.all()
+            # weights = image.imageclass_set.all()
         except Image.DoesNotExist:
-            return HttpResponse("找不到id为{}的图片".format(id), status=status.HTTP_400_BAD_REQUEST)
+            return HttpResponse("找不到id为{}的图片".format(id), status=status.HTTP_404_NOT_FOUND)
         else:
             data = {
-                'image': image,
-                'weights': weights
+                'id': image.id,
+                'image': image.image,
+                'image_name': image.image_name,
+                'mask': image.mask,
+                'time': image.time,
+                'pred': image.pred,
+                'size': image.size,
+                'area': image.area,
+                'prodline_id': image.prod_line.id,
+                'prodline_name': image.prod_line.prod_line_name,
             }
             serializer = ApiImageGetSerializer(data=data)
-            return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+            if not serializer.is_valid():
+                print("GET error", serializer.errors)
+                return JsonResponse(data, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                data = serializer.data
+                height, width = int(image.size[:image.size.index('*')]), int(image.size[1 + image.size.index('*'):])
+                data['ratio'] = int(image.area * 10000 / (height * width))
+                data['weights'] = {"1": image.weight1, "2": image.weight2}
+                return JsonResponse(data, status=status.HTTP_200_OK)
+    elif request.method == 'PUT':
+        try:
+            image = Image.objects.get(id=id)
+        except Image.DoesNotExist:
+            return HttpResponse("找不到id为{}的图片".format(id), status=status.HTTP_404_NOT_FOUND)
+        else:
+            data = JSONParser().parse(request)
+            new_pred = data['class']
+            old_pred = image.pred
+            image.pred = new_pred
+            image.save()
+            # todo: class 3
+            prodline = image.prod_line
+            if old_pred == 1 and new_pred == 2:
+                prodline.count1 -= 1
+                prodline.count2 += 1
+            elif old_pred == 2 and new_pred == 1:
+                prodline.count1 += 1
+                prodline.count2 -= 1
+            prodline.save()
+            return HttpResponse(status=status.HTTP_200_OK)
     elif request.method == 'DELETE':
         try:
             img = Image.objects.get(id=id)
-            prodline = img.prod_line
-            prodline_class = prodline.prodlineclass_set.get(name=img.pred)
-            prodline.image_size -= 1
-            prodline.save()
-            prodline_class.value -= 1
-            prodline_class.save()
-            img.delete()
         except Image.DoesNotExist:
-            return HttpResponse(content="找不到id为{}的图片".format(id), status=status.HTTP_400_BAD_REQUEST)
+            return HttpResponse(content="找不到id为{}的图片".format(id), status=status.HTTP_404_NOT_FOUND)
         else:
+            prodline = img.prod_line
+            # prodline_class = prodline.prodlineclass_set.get(name=img.pred)
+            prodline.image_size -= 1
+            if img.pred == 1:
+                prodline.count1 -= 1
+            else:
+                prodline.count2 -= 1
+            prodline.save()
+            # prodline_class.value -= 1
+            # prodline_class.save()
+            img.delete()
             return HttpResponse(status=status.HTTP_200_OK)
 
 
@@ -87,7 +127,7 @@ def api_prodLine(request, id):
     try:
         prod_line = ProdLine.objects.get(id=id)
     except ProdLine.DoesNotExist:
-        return HttpResponse("找不到id为{}的生产线".format(id), status=status.HTTP_400_BAD_REQUEST)
+        return HttpResponse("找不到id为{}的生产线".format(id), status=status.HTTP_404_NOT_FOUND)
     else:
         if request.method == 'GET':
             data = {
@@ -113,7 +153,7 @@ def api_stats(request):
         try:
             prod_line = ProdLine.objects.get(id=prod_line_id)
         except ProdLine.DoesNotExist:
-            return HttpResponse("找不到id为{}的生产线".format(id), status=status.HTTP_400_BAD_REQUEST)
+            return HttpResponse("找不到id为{}的生产线".format(id), status=status.HTTP_404_NOT_FOUND)
         else:
             images = prod_line.image_set.filter(time__gte=start_time, time__lte=end_time)
             data = {

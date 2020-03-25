@@ -4,6 +4,7 @@ import Axios from 'axios';
 import flow_style from "./index.module.scss"
 import IPictureForm, {IFormPayload} from "./form";
 import APIList from "../../API";
+import {genClass, genWeights} from "../../Components/flow";
 
 interface PageFlowData {
     image?: string//图片
@@ -62,35 +63,6 @@ const PageFlow = () => {
             setCurrent(0);
         }
     }
-
-    const genWeights = (weights: any) => {
-        if (weights != undefined) {
-            const ipx_bad = weights["1"];
-            const ipx_dirt = weights["2"];
-            const ipx_count = ipx_bad + ipx_dirt;
-            const poss_bad = (ipx_bad * 100 / ipx_count).toFixed(2);
-            const poss_dirt = (ipx_dirt * 100 / ipx_count).toFixed(2);
-            return (<div>
-                    <li>
-                        损坏概率:{poss_bad}%
-                        <p>({ipx_bad} / {ipx_count})</p>
-                    </li>
-                    <li>
-                        污渍概率:{poss_dirt}%
-                        <p>({ipx_dirt} / {ipx_count})</p>
-                    </li>
-                </div>
-            )
-        } else {
-            return (<React.Fragment/>)
-        }
-    };
-
-    const genClass = (pred?: number) => {
-        return (
-            pred === 1 ? "True Bad/损坏" : pred === 2 ? "False Bad/污渍" : undefined
-        )
-    };
 
     const content = <div>
             <Row>

@@ -79,15 +79,28 @@ class ApiFlowPostSerializer(serializers.ModelSerializer):
         return img
 
 
-class ApiImageGetSerializer(serializers.ModelSerializer):
+class ApiImageGetSerializer(serializers.Serializer):
     """
     根据Image构造json
     """
-    weights = ImageWeightSerializer(instance='weights', many=True)
 
+    id = serializers.IntegerField()
+    image_name = serializers.CharField()
+    image = serializers.CharField()
+    time = serializers.DateTimeField()
+    mask = serializers.CharField()
+    pred = serializers.IntegerField()
+    size = serializers.CharField()
+    area = serializers.IntegerField()
+
+    prodline_id = serializers.IntegerField()
+    prodline_name = serializers.CharField()
+    """
     class Meta:
         model = Image
-        fields = ['id', 'image_name', 'image', 'time', 'mask', 'pred']
+        fields = ['id', 'image_name', 'image', 'time', 'mask', 'pred', 'size',
+                  'area', 'weight1', 'weight2', 'prodline_id', 'prodline_name']
+    """
 
 
 class ApiProdLineSerializer(serializers.Serializer):
