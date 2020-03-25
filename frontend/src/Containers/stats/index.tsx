@@ -2,13 +2,34 @@ import React, {useEffect, useState} from "react"
 import {genGraphs} from "../../Components/stats"
 import Axios from "axios";
 import APIList from "../../API";
-import {message, Table} from "antd";
+import {
+    Breadcrumb,
+    Button,
+    Icon,
+    Card,
+    Col,
+    Row,
+    Descriptions,
+    Steps,
+    Carousel,
+    Modal,
+    Empty,
+    message,
+    Table,
+    Spin
+} from "antd";
+import {fakeProdlineDetail} from "../../Assets/fakeProdlineDetail";
+import ReactEcharts from "echarts-for-react";
+import {genPieGraph} from "../../Components/stats/detail";
 
 const PageStats = () => {
     const [statsData, setStatsData] = useState(undefined);
     //todo: 设计UI
     //todo: 做echarts
     //todo: 讨论这个页面怎么展示东西
+
+    const [data, setData] = useState(fakeProdlineDetail(1));
+    const genPieCharts = genPieGraph(data);
 
     //自动更新页面
     useEffect(() => {
@@ -85,6 +106,11 @@ const PageStats = () => {
                 {genEcharts}
                 <Table dataSource={dataSource} columns={columns} />
             </div>
+            <Row>
+                <Card>
+                    <ReactEcharts option={genPieCharts}/>
+                </Card>
+            </Row>
         </div>
     )
 };
