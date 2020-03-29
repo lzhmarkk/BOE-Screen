@@ -1,5 +1,32 @@
 import React from "react";
 
+export interface IProdlineDetail {
+    prodline_id: number
+    prodline_name: string
+    total: number
+    bad_count: number
+    bad_ratio: number
+    avg_dirt_size: number
+    min_dirt_size: number
+    max_dirt_size: number
+    avg_bad_size: number
+    min_bad_size: number
+    max_bad_size: number
+    dirt_images: IProdlineDetailImage[]
+    bad_images: IProdlineDetailImage[]
+}
+
+interface IProdlineDetailImage {
+    image_id: number
+    image_name: string
+    time: any
+    pred: number
+    size: string
+    area: number
+    ratio: number
+}
+
+//todo: 增加百分比的显示
 export const genPieGraph = (prop: any) => {
     return (
         {
@@ -58,32 +85,21 @@ export const GenColumns = (Action: (props: { record: any }) => JSX.Element, brok
         sorter: (a: any, b: any) => parseInt(a.time) - parseInt(b.time)
     },
     {
-        dataIndex: "class", title: "图片类型", key: "class",
+        dataIndex: "pred", title: "图片类型", key: "pred",
     },
     {
         dataIndex: "size", title: "图片大小", key: "size",
         sorter: (a: any, b: any) => parseInt(a.size) - parseInt(b.size),
     },
-    broken ?
-        {
-            dataIndex: "bad", title: "坏点大小(像素)", key: "bad",
-            sorter: (a: any, b: any) => parseInt(a.bad) - parseInt(b.bad),
-        } :
-        {
-            dataIndex: "dirt", title: "污点大小(像素)", key: "dirt",
-            sorter: (a: any, b: any) => parseInt(a.dirt) - parseInt(b.dirt),
-        },
-    broken ?
-        {
-            dataIndex: "bad_ratio", title: "坏点比例", key: "bad_ratio",
-            sorter: (a: any, b: any) => parseInt(a.bad_ratio) - parseInt(b.bad_ratio),
-            render: (_: any, record: any, ___: any) => <div>{Math.ceil(record.bad_ratio * 100) / 100}%</div>
-        } :
-        {
-            dataIndex: "dirt_ratio", title: "污点比例", key: "dirt_ratio",
-            sorter: (a: any, b: any) => parseInt(a.dirt_ratio) - parseInt(b.dirt_ratio),
-            render: (_: any, record: any, ___: any) => <div>{Math.ceil(record.dirt_ratio * 100) / 100}%</div>
-        },
+    {
+        dataIndex: "area", title: broken ? "坏块大小(像素)" : "污点大小(像素)", key: "area",
+        sorter: (a: any, b: any) => parseInt(a.area) - parseInt(b.area),
+    },
+    {
+        dataIndex: "ratio", title: broken ? "坏块比例" : "污点比例", key: "ratio",
+        sorter: (a: any, b: any) => parseInt(a.ratio) - parseInt(b.ratio),
+        render: (_: any, record: any, ___: any) => <div>{Math.floor(100 * record.area / (1224 * 9)) / 100}%</div>
+    },
     {
         dataIndex: "Action", title: "详情", key: "Action",
         render: (_: any, record: any, ___: any) => <Action record={record}/>

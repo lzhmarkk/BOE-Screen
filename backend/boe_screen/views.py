@@ -121,9 +121,39 @@ def api_image(request, id):
             return HttpResponse(status=status.HTTP_200_OK)
 
 
+# 生产线总览页
+# api/prodLine/index
+def api_prodLine(request):
+    if request.method == 'GET':
+        prodlines = ProdLine.objects.all()
+        data = [{
+            "prodline_id": p.id,
+            "prodline_name": p.prod_line_name,
+            "total": p.count1 + p.count2,
+            "bad_count": p.count1,
+            "bad_ratio": 100 * p.count1 / (p.count1 + p.count2)
+        } for p in prodlines]
+        data = {"prodlines": data}
+        print(data["prodlines"])
+        serializer = ApiProdLinesSerializer(data)
+        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+    elif request.method == 'POST':
+        data = JSONParser().parse(request)
+        data = {
+            "prod_line_name": data["prodline_name"]
+        }
+        serializer = ApiProdLinePostSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return HttpResponse(status=status.HTTP_200_OK)
+        else:
+            print(serializer.error)
+            return HttpResponse(status=status.HTTP_400_BAD_REQUEST)
+
+
 # 生产线详情页
 # api/prodLine/<int:id>
-def api_prodLine(request, id):
+def api_prodLineDetail(request, id):
     try:
         prod_line = ProdLine.objects.get(id=id)
     except ProdLine.DoesNotExist:
@@ -131,15 +161,25 @@ def api_prodLine(request, id):
     else:
         if request.method == 'GET':
             data = {
-                'prod_line_id': prod_line.id,
-                'prod_line_name': prod_line.prod_line_name,
-                'image_size': prod_line.image_size,
-                'images': prod_line.image_set.all(),
-                'weights': prod_line.prodlineclass_set.all()
+                'prodline_id': prod_line.id,
+                'prodline_name': prod_line.prod_line_name,
+                "total": prod_line.image_size,
+                "bad_count": prod_line.count1,
+                "bad_ratio": int(10000 * prod_line.count1 / prod_line.image_size),
+                "avg_dirt_size": int(100 * prod_line.sum_dirt_size / prod_line.image_size),
+                "min_dirt_size": prod_line.min_dirt_size,
+                "max_dirt_size": prod_line.max_dirt_size,
+                "avg_bad_size": int(100 * prod_line.sum_bad_size / prod_line.image_size),
+                "min_bad_size": prod_line.min_bad_size,
+                "max_bad_size": prod_line.max_bad_size,
+                "dirt_images": prod_line.image_set.filter(pred=2),
+                "bad_images": prod_line.image_set.filter(pred=1)
             }
-            serializer = ApiProdLineSerializer(data=data)
+            serializer = ApiProdLineDetailSerializer(data)
             return JsonResponse(serializer.data, status=status.HTTP_200_OK)
 
+
+# todo删改图片时，修改prodline统计数据
 
 # 数据统计页
 # api/stats

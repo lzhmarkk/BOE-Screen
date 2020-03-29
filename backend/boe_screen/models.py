@@ -9,6 +9,13 @@ class ProdLine(models.Model):
     count1 = models.PositiveIntegerField(default=0, null=True)
     count2 = models.PositiveIntegerField(default=0, null=True)
 
+    sum_dirt_size = models.PositiveIntegerField(default=0)
+    min_dirt_size = models.PositiveIntegerField(default=0)
+    max_dirt_size = models.PositiveIntegerField(default=0)
+    sum_bad_size = models.PositiveIntegerField(default=0)
+    min_bad_size = models.PositiveIntegerField(default=0)
+    max_bad_size = models.PositiveIntegerField(default=0)
+
 
 class Image(models.Model):
     id = models.AutoField(primary_key=True)

@@ -1,42 +1,22 @@
-from abc import ABC
-
 from rest_framework import serializers
 from _datetime import datetime
 from .models import *
 
 
-class ProdLineImageSerializer(serializers.ModelSerializer):
-    """
-    根据Image构造json
-    """
-
-    class Meta:
-        model = Image
-        fields = ['id', 'image_name', 'image', 'time', 'mask', 'pred']
+class ProdLineImageSerializer(serializers.Serializer):
+    image_id = serializers.IntegerField(source='id')
+    image_name = serializers.CharField()
+    time = serializers.DateTimeField()
+    pred = serializers.IntegerField()
+    size = serializers.CharField()
+    area = serializers.IntegerField()
+    # ratio = serializers.IntegerField()
 
 
 class StatsImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Image
         fields = ['id', 'image_name', 'image', 'time', 'mask', 'pred']
-
-
-class ImageWeightSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ImageClass
-        fields = ['name', 'value']
-
-
-class ProdlineWeightSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ImageClass
-        fields = ['name', 'value']
-
-
-class StatsWeightSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ProdLineClass
-        fields = ['name', 'value']
 
 
 class ApiFlowPostSerializer(serializers.ModelSerializer):
@@ -103,15 +83,44 @@ class ApiImageGetSerializer(serializers.Serializer):
     """
 
 
-class ApiProdLineSerializer(serializers.Serializer):
+class ApiProdLineDetailSerializer(serializers.Serializer):
     """
     根据ProdLine构造json
     """
-    prod_line_id = serializers.IntegerField()
-    prod_line_name = serializers.CharField()
-    image_size = serializers.IntegerField()
-    images = ProdLineImageSerializer(source='images', many=True)
-    weights = ProdlineWeightSerializer(source='weights', many=True)
+    prodline_id = serializers.IntegerField()
+    prodline_name = serializers.CharField()
+    total = serializers.IntegerField()
+    bad_count = serializers.IntegerField()
+    bad_ratio = serializers.IntegerField()
+    avg_dirt_size = serializers.IntegerField()
+    min_dirt_size = serializers.IntegerField()
+    max_dirt_size = serializers.IntegerField()
+    avg_bad_size = serializers.IntegerField()
+    min_bad_size = serializers.IntegerField()
+    max_bad_size = serializers.IntegerField()
+    dirt_images = ProdLineImageSerializer(many=True)
+    bad_images = ProdLineImageSerializer(many=True)
+
+
+class ProdLineSerializer(serializers.Serializer):
+    prodline_id = serializers.IntegerField()
+    prodline_name = serializers.CharField()
+    total = serializers.IntegerField()
+    bad_count = serializers.IntegerField()
+    bad_ratio = serializers.DecimalField(decimal_places=2, max_digits=4)
+
+
+class ApiProdLinesSerializer(serializers.Serializer):
+    prodlines = ProdLineSerializer(many=True)
+
+
+class ApiProdLinePostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProdLine
+        fields = ['id', 'prod_line_name', 'image_size', 'count1', 'count2']
+
+    def create(self, **validated_data):
+        ProdLine.objects.create(**validated_data)
 
 
 class ApiStatsSerializer(serializers.Serializer):
@@ -121,4 +130,3 @@ class ApiStatsSerializer(serializers.Serializer):
     prod_line_name = serializers.CharField()
     image_size = serializers.IntegerField()
     images = StatsImageSerializer(source='images', many=True)
-    weights = StatsWeightSerializer(source='weights', many=True)

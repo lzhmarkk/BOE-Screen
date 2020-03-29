@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from "react"
 import {withRouter} from "react-router";
-import {Breadcrumb, Descriptions, Row, Col, Card, Tabs, Table, Button, message, Icon, Menu} from 'antd';
-import {genPieGraph, GenColumns} from "../../../Components/Prodline/detail";
+import {Breadcrumb, Descriptions, Row, Col, Card, Tabs, Table, Button, message, Icon} from 'antd';
+import {genPieGraph, GenColumns, IProdlineDetail} from "../../../Components/Prodline/detail";
 import ReactEcharts from "echarts-for-react";
 import style from './index.module.scss';
 import {fakeProdlineDetail} from "../../../Assets/fakeProdlineDetail";
@@ -13,7 +13,7 @@ const {TabPane} = Tabs;
 const PageProdlineDetail = withRouter((prop) => {
     const id = prop.match.params.id;
 
-    const [data, setData] = useState(fakeProdlineDetail(id));
+    const [data, setData] = useState<IProdlineDetail>(fakeProdlineDetail(id));
 
     useEffect(() => {
         Axios.get(APIList.prodlineDetail(id))
@@ -32,9 +32,6 @@ const PageProdlineDetail = withRouter((prop) => {
         <Button onClick={() => window.location.href = `/flow/${props.record.image_id}`}>查看详情</Button>
     </div>;
     const genPieCharts = genPieGraph(data);
-    const getRatio = () => {
-        return `${(1 - data.bad_ratio) * 100}%`
-    };
     return (
         <div>
             <Breadcrumb>
@@ -52,7 +49,7 @@ const PageProdlineDetail = withRouter((prop) => {
             </Breadcrumb>
             <Row>
                 <Col span={16} className={style.card}>
-                    <Card title={data.prodline_name} extra={<span>良品率-{getRatio()}</span>}>
+                    <Card title={data.prodline_name} extra={<span>良品率-{100 - data.bad_ratio / 100}%</span>}>
                         <Descriptions layout="vertical" bordered>
                             <Descriptions.Item label={'生产线序号'}>
                                 {data.prodline_id}
@@ -67,7 +64,7 @@ const PageProdlineDetail = withRouter((prop) => {
                                 {data.bad_count}
                             </Descriptions.Item>
                             <Descriptions.Item label={"良品率"}>
-                                {getRatio()}
+                                {100 - data.bad_ratio / 100}%
                             </Descriptions.Item>
                             <Descriptions.Item label={"平均污点大小(像素)"}>
                                 {data.avg_dirt_size}

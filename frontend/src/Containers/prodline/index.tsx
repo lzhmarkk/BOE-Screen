@@ -8,6 +8,7 @@ import {IProdlineInfo} from '../../Components/Prodline';
 import APIList from "../../API";
 import ISearchPanel from "./form";
 
+//todo: 按照纹理分类
 //接口参考components/prodline/index.tsx
 const PageProdlineIndex = () => {
     const [prodlineData, setProdlineData] = useState<IProdlineInfo[]>(fakeProdlineInfo);
@@ -18,9 +19,9 @@ const PageProdlineIndex = () => {
     useEffect(() => {
         Axios.get(APIList.prodline)
             .then(res => {
-                setProdlineData(res.data);
-                setTableData(res.data);
                 console.log(res);
+                setProdlineData(res.data.prodlines);
+                setTableData(res.data.prodlines);
                 message.success("成功获取生产线数据");
             })
             .catch(err => {
