@@ -23,10 +23,14 @@ def get_mask(image, analyze=True):
         mask, classes = analyze_image(image)
         # mask (numpy array) h x w
         # weights = get_class_weights(category, category.shape)
-        weights = {"1": classes[1], "2": classes[2]}
+        if len(classes) > 2:
+            weights = {"1": classes[1], "2": classes[2]}
+        else:
+            weights = {"1": classes[1], "2": 0}
         _class = numpy.argmax(classes)
         size = image.size
         area = get_area(mask)  # 污点、坏块的大小
+        mask[mask != 0] = _class  # 上色
         mask = decode_segmap(mask, dataset='all')
         mask = mask * 255
         mask = _Image.fromarray(mask.astype('uint8'))

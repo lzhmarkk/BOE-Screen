@@ -112,7 +112,7 @@ def get_pascal_labels():
 
 
 def get_mydataset_labels():
-    return np.asarray([[0, 0, 0], [192, 0, 0], [0, 0, 192]])
+    return np.asarray([[0, 0, 0], [192, 0, 0], [0, 192, 0]])
 
 
 def get_penn_labels():
