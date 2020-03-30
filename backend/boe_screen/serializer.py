@@ -39,8 +39,14 @@ class ApiFlowPostSerializer(serializers.ModelSerializer):
         prodline.image_size += 1
         if validated_data.get('pred') == "1":
             prodline.count1 += 1
+            prodline.sum_bad_size += validated_data['area']
+            prodline.min_bad_size = min(prodline.min_bad_size, validated_data['area'])
+            prodline.max_bad_size = max(prodline.max_bad_size, validated_data['area'])
         else:
             prodline.count2 += 1
+            prodline.sum_dirt_size += validated_data['area']
+            prodline.min_dirt_size = min(prodline.min_bad_size, validated_data['area'])
+            prodline.max_dirt_size = max(prodline.max_bad_size, validated_data['area'])
         prodline.save()
         """
         if weights is not None:

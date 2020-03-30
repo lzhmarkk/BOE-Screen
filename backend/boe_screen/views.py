@@ -1,3 +1,4 @@
+from django.db.models import Min, Max
 from django.http import JsonResponse, HttpResponse
 from rest_framework.parsers import JSONParser
 from .utils import *
@@ -112,12 +113,20 @@ def api_image(request, id):
             prodline.image_size -= 1
             if img.pred == 1:
                 prodline.count1 -= 1
+                prodline.sum_bad_size -= img.size
+                if prodline.min_bad_size == img.area:
+                    prodline.min_bad_size = prodline.image_set.filter(pred=1 & id != img.id).aggregate(Min('area'))
+                if prodline.max_bad_size == img.area:
+                    prodline.max_bad_size = prodline.image_set.filter(pred=1 & id != img.id).aggregate(Max('area'))
             else:
                 prodline.count2 -= 1
-            prodline.save()
-            # prodline_class.value -= 1
-            # prodline_class.save()
+                prodline.sum_dirt_size -= img.size
+                if prodline.min_dirt_size == img.size:
+                    prodline.min_dirt_size = prodline.image_set.filter(pred=2 & id != img.id).aggregate(Min('area'))
+                if prodline.max_dirt_size == img.size:
+                    prodline.max_dirt_size = prodline.image_set.filter(pred=2 & id != img.id).aggregate(Max('area'))
             img.delete()
+            prodline.save()
             return HttpResponse(status=status.HTTP_200_OK)
 
 
@@ -178,8 +187,6 @@ def api_prodLineDetail(request, id):
             serializer = ApiProdLineDetailSerializer(data)
             return JsonResponse(serializer.data, status=status.HTTP_200_OK)
 
-
-# todo删改图片时，修改prodline统计数据
 
 # 数据统计页
 # api/stats
