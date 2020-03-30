@@ -42,12 +42,6 @@ const SearchForm = (props: IFormProps) => {
                         rules: [{required: false, message: "请输入流水线名称"}],
                     })(<Input style={{width: "80%"}}/>)}
                 </Form.Item>
-                <Form.Item label="日期" {...formItemLayout}>
-                    {getFieldDecorator('range-picker', {
-                        rules: [{type: 'array', required: false, message: 'Please select time!'}],
-                    })
-                    (<RangePicker style={{width: "80%"}}/>)}
-                </Form.Item>
                 <Form.Item>
                     <Button onClick={handleSubmit} icon={"search"} type={"primary"}>筛选</Button>
                     <Button onClick={handleClear} icon={"redo"}>重置</Button>
@@ -60,3 +54,12 @@ const SearchForm = (props: IFormProps) => {
 const ISearchPanel = Form.create<IFormProps>()(SearchForm);
 
 export default ISearchPanel;
+
+/*
+<Form.Item label="日期" {...formItemLayout}>
+                    {getFieldDecorator('range-picker', {
+                        rules: [{type: 'array', required: false, message: 'Please select time!'}],
+                    })
+                    (<RangePicker style={{width: "80%"}}/>)}
+                </Form.Item>
+ */

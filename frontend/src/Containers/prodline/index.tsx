@@ -36,11 +36,10 @@ const PageProdlineIndex = () => {
     const genColumns = GenColumns(Action);
     const genGraphs = GenGraphs(prodlineData);
     //todo: echarts表单，点击GenGraphs进入补充
-    //todo: 筛选头表单
     return (
         <div>
             <span>
-                这里是生产线页面主页
+                生产线页面主页
             </span>
             <div>{genGraphs}</div>
             <div className={style.ControlPanel}>
