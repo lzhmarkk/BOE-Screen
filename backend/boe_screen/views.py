@@ -18,18 +18,18 @@ def api_flow(request):
         img = pil2base(img, 'PNG')
         mask = pil2base(mask, 'PNG')
 
-        prodline_name = data['prodline_name']
+        texture_name = data['image_name'][:6]
         try:
-            prodline = ProdLine.objects.get(prod_line_name=prodline_name)
-        except ProdLine.DoesNotExist:
-            prodline = ProdLine.objects.create(prod_line_name=prodline_name, image_size=0)
+            texture = Texture.objects.get(texture_name=texture_name)
+        except Texture.DoesNotExist:
+            texture = Texture.objects.create(texture_name=texture_name, image_size=0)
 
         data = {
             'image': img,
             'image_name': image_name,
             'mask': mask,
             'pred': pred,
-            'prodline_id': prodline.id,
+            'texture_id': texture.id,
             'weight1': weights["1"],
             'weight2': weights["2"],
             'size': "{} * {}".format(size[0], size[1]),
@@ -42,7 +42,8 @@ def api_flow(request):
             print(serializer.errors)
 
         data = serializer.data
-        data['prodline_name'] = prodline.prod_line_name
+        data['texture_id'] = texture.id
+        data['texture_name'] = texture.texture_name
         data['area'] = int(area)  # type(area) = numpy.int64
         data['ratio'] = int(area * 10000 / (size[0] * size[1]))
         data['weights'] = {"1": data["weight1"], "2": data["weight2"]}
@@ -68,8 +69,8 @@ def api_image(request, id):
                 'pred': image.pred,
                 'size': image.size,
                 'area': image.area,
-                'prodline_id': image.prod_line.id,
-                'prodline_name': image.prod_line.prod_line_name,
+                'texture_id': image.texture.id,
+                'texture_name': image.texture.texture_name,
             }
             serializer = ApiImageGetSerializer(data=data)
             if not serializer.is_valid():
@@ -93,14 +94,14 @@ def api_image(request, id):
             image.pred = new_pred
             image.save()
             # todo: class 3
-            prodline = image.prod_line
+            texture = image.texture
             if old_pred == 1 and new_pred == 2:
-                prodline.count1 -= 1
-                prodline.count2 += 1
+                texture.bad_count -= 1
+                texture.dirt_count += 1
             elif old_pred == 2 and new_pred == 1:
-                prodline.count1 += 1
-                prodline.count2 -= 1
-            prodline.save()
+                texture.bad_count += 1
+                texture.dirt_count -= 1
+            texture.save()
             return HttpResponse(status=status.HTTP_200_OK)
     elif request.method == 'DELETE':
         try:
@@ -108,50 +109,48 @@ def api_image(request, id):
         except Image.DoesNotExist:
             return HttpResponse(content="找不到id为{}的图片".format(id), status=status.HTTP_404_NOT_FOUND)
         else:
-            prodline = img.prod_line
-            # prodline_class = prodline.prodlineclass_set.get(name=img.pred)
-            prodline.image_size -= 1
+            texture = img.texture
+            texture.image_size -= 1
             if img.pred == 1:
-                prodline.count1 -= 1
-                prodline.sum_bad_size -= img.size
-                if prodline.min_bad_size == img.area:
-                    prodline.min_bad_size = prodline.image_set.filter(pred=1 & id != img.id).aggregate(Min('area'))
-                if prodline.max_bad_size == img.area:
-                    prodline.max_bad_size = prodline.image_set.filter(pred=1 & id != img.id).aggregate(Max('area'))
+                texture.bad_count -= 1
+                texture.sum_bad_size -= img.size
+                if texture.min_bad_size == img.area:
+                    texture.min_bad_size = texture.image_set.filter(pred=1 & id != img.id).aggregate(Min('area'))
+                if texture.max_bad_size == img.area:
+                    texture.max_bad_size = texture.image_set.filter(pred=1 & id != img.id).aggregate(Max('area'))
             else:
-                prodline.count2 -= 1
-                prodline.sum_dirt_size -= img.size
-                if prodline.min_dirt_size == img.size:
-                    prodline.min_dirt_size = prodline.image_set.filter(pred=2 & id != img.id).aggregate(Min('area'))
-                if prodline.max_dirt_size == img.size:
-                    prodline.max_dirt_size = prodline.image_set.filter(pred=2 & id != img.id).aggregate(Max('area'))
+                texture.dirt_count -= 1
+                texture.sum_dirt_size -= img.size
+                if texture.min_dirt_size == img.size:
+                    texture.min_dirt_size = texture.image_set.filter(pred=2 & id != img.id).aggregate(Min('area'))
+                if texture.max_dirt_size == img.size:
+                    texture.max_dirt_size = texture.image_set.filter(pred=2 & id != img.id).aggregate(Max('area'))
             img.delete()
-            prodline.save()
+            texture.save()
             return HttpResponse(status=status.HTTP_200_OK)
 
 
-# 生产线总览页
-# api/prodLine/index
-def api_prodLine(request):
+# 纹理总览页
+# api/texture/index
+def api_texture(request):
     if request.method == 'GET':
-        prodlines = ProdLine.objects.all()
+        textures = Texture.objects.all()
         data = [{
-            "prodline_id": p.id,
-            "prodline_name": p.prod_line_name,
-            "total": p.count1 + p.count2,
-            "bad_count": p.count1,
-            "bad_ratio": 100 * p.count1 / (p.count1 + p.count2)
-        } for p in prodlines]
-        data = {"prodlines": data}
-        print(data["prodlines"])
-        serializer = ApiProdLinesSerializer(data)
+            "texture_id": t.id,
+            "texture_name": t.texture_name,
+            "total": t.bad_count + t.dirt_count,
+            "bad_count": t.bad_count,
+            "bad_ratio": 100 * t.bad_count / (t.bad_count + t.dirt_count)
+        } for t in textures]
+        data = {"textures": data}
+        serializer = ApiTexturesSerializer(data)
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)
     elif request.method == 'POST':
         data = JSONParser().parse(request)
         data = {
-            "prod_line_name": data["prodline_name"]
+            "texture_name": data["texture_name"]
         }
-        serializer = ApiProdLinePostSerializer(data=data)
+        serializer = ApiTexturePostSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return HttpResponse(status=status.HTTP_200_OK)
@@ -161,30 +160,30 @@ def api_prodLine(request):
 
 
 # 生产线详情页
-# api/prodLine/<int:id>
-def api_prodLineDetail(request, id):
+# api/texture/<int:id>
+def api_textureDetail(request, id):
     try:
-        prod_line = ProdLine.objects.get(id=id)
-    except ProdLine.DoesNotExist:
+        texture = Texture.objects.get(id=id)
+    except Texture.DoesNotExist:
         return HttpResponse("找不到id为{}的生产线".format(id), status=status.HTTP_404_NOT_FOUND)
     else:
         if request.method == 'GET':
             data = {
-                'prodline_id': prod_line.id,
-                'prodline_name': prod_line.prod_line_name,
-                "total": prod_line.image_size,
-                "bad_count": prod_line.count1,
-                "bad_ratio": int(10000 * prod_line.count1 / prod_line.image_size),
-                "avg_dirt_size": int(100 * prod_line.sum_dirt_size / prod_line.image_size),
-                "min_dirt_size": prod_line.min_dirt_size,
-                "max_dirt_size": prod_line.max_dirt_size,
-                "avg_bad_size": int(100 * prod_line.sum_bad_size / prod_line.image_size),
-                "min_bad_size": prod_line.min_bad_size,
-                "max_bad_size": prod_line.max_bad_size,
-                "dirt_images": prod_line.image_set.filter(pred=2),
-                "bad_images": prod_line.image_set.filter(pred=1)
+                'texture_id': texture.id,
+                'texture_name': texture.texture_name,
+                "total": texture.image_size,
+                "bad_count": texture.bad_count,
+                "bad_ratio": int(10000 * texture.bad_count / texture.image_size),
+                "avg_dirt_size": int(100 * texture.sum_dirt_size / texture.image_size),
+                "min_dirt_size": texture.min_dirt_size,
+                "max_dirt_size": texture.max_dirt_size,
+                "avg_bad_size": int(100 * texture.sum_bad_size / texture.image_size),
+                "min_bad_size": texture.min_bad_size,
+                "max_bad_size": texture.max_bad_size,
+                "bad_images": texture.image_set.filter(pred=1),
+                "dirt_images": texture.image_set.filter(pred=2)
             }
-            serializer = ApiProdLineDetailSerializer(data)
+            serializer = ApiTextureDetailSerializer(data)
             return JsonResponse(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -195,19 +194,19 @@ def api_stats(request):
         data = JSONParser().parse(request)
         start_time = data['start_time']
         end_time = data['end_time']
-        prod_line_id = data['prod_line']
+        texture_id = data['texture_id']
 
         try:
-            prod_line = ProdLine.objects.get(id=prod_line_id)
-        except ProdLine.DoesNotExist:
-            return HttpResponse("找不到id为{}的生产线".format(id), status=status.HTTP_404_NOT_FOUND)
+            texture = Texture.objects.get(id=texture_id)
+        except Texture.DoesNotExist:
+            return HttpResponse("找不到id为{}的纹理".format(id), status=status.HTTP_404_NOT_FOUND)
         else:
-            images = prod_line.image_set.filter(time__gte=start_time, time__lte=end_time)
+            images = texture.image_set.filter(time__gte=start_time, time__lte=end_time)
             data = {
-                'prod_line_name': prod_line.prod_line_name,
-                'image_size': prod_line.image_size,
+                'texture_name': texture.texture_name,
+                'image_size': texture.image_size,
                 'images': images,
-                'weights': prod_line.prodlineclass_set.all()
+                'weights': texture.textureclass_set.all()
             }
             serializer = ApiStatsSerializer(data=data)
             return JsonResponse(serializer.data, status=status.HTTP_200_OK)

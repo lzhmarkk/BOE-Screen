@@ -37,9 +37,9 @@ const SearchForm = (props: IFormProps) => {
     return (
         <div className={styles.root}>
             <Form layout="inline" style={{background: "white"}}>
-                <Form.Item label="流水线名称" {...formItemLayout}>
+                <Form.Item label="纹理名称" {...formItemLayout}>
                     {getFieldDecorator('content', {
-                        rules: [{required: false, message: "请输入流水线名称"}],
+                        rules: [{required: false, message: "请输入纹理名称"}],
                     })(<Input style={{width: "80%"}}/>)}
                 </Form.Item>
                 <Form.Item>

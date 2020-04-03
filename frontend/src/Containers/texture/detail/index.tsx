@@ -1,30 +1,30 @@
 import React, {useState, useEffect} from "react"
 import {withRouter} from "react-router";
 import {Breadcrumb, Descriptions, Row, Col, Card, Tabs, Table, Button, message, Icon} from 'antd';
-import {genPieGraph, GenColumns, IProdlineDetail} from "../../../Components/Prodline/detail";
+import {genPieGraph, GenColumns, ITextureDetail} from "../../../Components/Texture/detail";
 import ReactEcharts from "echarts-for-react";
 import style from './index.module.scss';
-import {fakeProdlineDetail} from "../../../Assets/fakeProdlineDetail";
+import {fakeTextureDetail} from "../../../Assets/fakeTextureDetail";
 import Axios from "axios";
 import APIList from "../../../API";
 
 const {TabPane} = Tabs;
 
-const PageProdlineDetail = withRouter((prop) => {
+const PageTextureDetail = withRouter((prop) => {
     const id = prop.match.params.id;
 
-    const [data, setData] = useState<IProdlineDetail>(fakeProdlineDetail(id));
+    const [data, setData] = useState<ITextureDetail>(fakeTextureDetail(id));
 
     useEffect(() => {
-        Axios.get(APIList.prodlineDetail(id))
+        Axios.get(APIList.textureDetail(id))
             .then(res => {
                 setData(res.data);
                 console.log(res);
-                message.success(`成功获取生产线${id}数据`);
+                message.success(`成功获取纹理${id}数据`);
             })
             .catch(err => {
                 console.log(err);
-                message.error(`获取生产线${id}数据失败`);
+                message.error(`获取纹理${id}数据失败`);
             })
     }, []);
 
@@ -39,23 +39,23 @@ const PageProdlineDetail = withRouter((prop) => {
                     <Icon type={'home'}/>
                     <span>系统</span>
                 </Breadcrumb.Item>
-                <Breadcrumb.Item href={"/prodline/"}>
+                <Breadcrumb.Item href={"/texture/"}>
                     <Icon type={'build'}/>
-                    <span>生产线管理</span>
+                    <span>纹理管理</span>
                 </Breadcrumb.Item>
-                <Breadcrumb.Item href={`/prodline/${id}`}>
-                    <span>生产线序号： {id}</span>
+                <Breadcrumb.Item href={`/texture/${id}`}>
+                    <span>纹理序号： {id}</span>
                 </Breadcrumb.Item>
             </Breadcrumb>
             <Row>
                 <Col span={16} className={style.card}>
-                    <Card title={data.prodline_name} extra={<span>良品率-{100 - data.bad_ratio / 100}%</span>}>
+                    <Card title={data.texture_name} extra={<span>良品率-{100 - data.bad_ratio / 100}%</span>}>
                         <Descriptions layout="vertical" bordered>
-                            <Descriptions.Item label={'生产线序号'}>
-                                {data.prodline_id}
+                            <Descriptions.Item label={'纹理序号'}>
+                                {data.texture_id}
                             </Descriptions.Item>
-                            <Descriptions.Item label={'生产线名称'} span={2}>
-                                {data.prodline_name}
+                            <Descriptions.Item label={'纹理名称'} span={2}>
+                                {data.texture_name}
                             </Descriptions.Item>
                             <Descriptions.Item label={'图片数量'}>
                                 {data.total}
@@ -67,7 +67,7 @@ const PageProdlineDetail = withRouter((prop) => {
                                 {100 - data.bad_ratio / 100}%
                             </Descriptions.Item>
                             <Descriptions.Item label={"平均污点大小(像素)"}>
-                                {data.avg_dirt_size}
+                                {data.avg_dirt_size / 100}
                             </Descriptions.Item>
                             <Descriptions.Item label={"最小污点大小(像素)"}>
                                 {data.min_dirt_size}
@@ -76,7 +76,7 @@ const PageProdlineDetail = withRouter((prop) => {
                                 {data.max_dirt_size}
                             </Descriptions.Item>
                             <Descriptions.Item label={"平均坏块大小(像素)"}>
-                                {data.avg_bad_size}
+                                {data.avg_bad_size / 100}
                             </Descriptions.Item>
                             <Descriptions.Item label={"最小坏块大小(像素)"}>
                                 {data.min_bad_size}
@@ -109,4 +109,4 @@ const PageProdlineDetail = withRouter((prop) => {
         </div>
     )
 });
-export default PageProdlineDetail;
+export default PageTextureDetail;

@@ -11,8 +11,8 @@ interface PageFlowData {
     time?: any
     mask?: string//图片mask
     image_name?: string//图片名
-    prodline_id?: number
-    prodline_name?: string//流水线名
+    texture_id?: number
+    texture_name?: string//流水线名
     pred?: number
     size?: string
     area?: number
@@ -22,7 +22,7 @@ interface PageFlowData {
         "2": number
     }
 }
-//todo: mask偏上
+
 const {Step} = Steps;
 
 const PageFlow = () => {
@@ -111,7 +111,6 @@ const PageFlow = () => {
                             const postData = {
                                 "image": e.image === undefined ? undefined : e.image[0].originFileObj.thumbUrl,
                                 "image_name": e.image === undefined ? undefined : e.image[0].name,
-                                "prodline_name": e.prodline_name === undefined ? "" : e.prodline_name
                             };
                             console.log(postData);
                             handlePost(postData);
@@ -126,8 +125,8 @@ const PageFlow = () => {
                         <Descriptions.Item span={3} label={"异常占比"}>
                             {data.ratio ? data.ratio / 100 + "%" : undefined}
                         </Descriptions.Item>
-                        <Descriptions.Item span={3} label={"生产线序号"}>{data.prodline_id}</Descriptions.Item>
-                        <Descriptions.Item span={3} label={"生产线名称"}>{data.prodline_name}</Descriptions.Item>
+                        <Descriptions.Item span={3} label={"纹理序号"}>{data.texture_id}</Descriptions.Item>
+                        <Descriptions.Item span={3} label={"纹理名称"}>{data.texture_name}</Descriptions.Item>
                         <Descriptions.Item span={3} label={"上传时间"}>{data.time}</Descriptions.Item>
                         <Descriptions.Item span={3} label={"权重"}>{genWeights(data.weights)}</Descriptions.Item>
                     </Descriptions>

@@ -1,15 +1,11 @@
 import React, {useState} from "react";
 import {FormComponentProps} from "antd/lib/form";
-import {Button, Form, Icon, Upload, DatePicker, Input, Radio} from "antd";
+import {Button, Form, Icon, Upload, Input} from "antd";
 
 import styles from './index.module.scss'
-import APIList from "../../API";
-
-const {RangePicker} = DatePicker;
 
 export interface IFormPayload {
     image: any,
-    prodline_name: string,
 }
 
 
@@ -36,15 +32,6 @@ const IForm = (props: IFormProps) => {
     //固定内容，getFieldDecorator用于限制表单填写内容
     const {getFieldDecorator} = props.form;
 
-    const rangeConfig = {
-        rules: [{type: 'array', required: true, message: 'Please select time!'}],
-    };
-
-    const formItemLayout =
-        {
-            labelCol: {span: 8, offset: 0},
-            wrapperCol: {span: 16, offset: 0},
-        };
     const beforeUpload = (file: any, files: any) => {
         const r = new FileReader();
         r.readAsDataURL(file);
@@ -73,11 +60,6 @@ const IForm = (props: IFormProps) => {
                         </Upload>)}
                     </Form.Item>
                     <Form.Item>
-                        {getFieldDecorator('prodline_name', {
-                            rules: [{required: true, message: "请输入生产线名称"}],
-                        })(<Input/>)}
-                    </Form.Item>
-                    <Form.Item>
                         <Button onClick={handleSubmit} icon={"upload"} type={"primary"}>确认上传</Button>
                     </Form.Item>
                 </Form>
@@ -89,3 +71,11 @@ const IForm = (props: IFormProps) => {
 const IPictureForm = Form.create<IFormProps>()(IForm);
 
 export default IPictureForm;
+
+/*
+<Form.Item>
+                        {getFieldDecorator('texture_name', {
+                            rules: [{required: true, message: "请输入生产线名称"}],
+                        })(<Input/>)}
+                    </Form.Item>
+ */

@@ -3,7 +3,7 @@ from _datetime import datetime
 from .models import *
 
 
-class ProdLineImageSerializer(serializers.Serializer):
+class TextureImageSerializer(serializers.Serializer):
     image_id = serializers.IntegerField(source='id')
     image_name = serializers.CharField()
     time = serializers.DateTimeField()
@@ -23,11 +23,11 @@ class ApiFlowPostSerializer(serializers.ModelSerializer):
     """
     根据Image构造json
     """
-    prodline_id = serializers.PrimaryKeyRelatedField(source='prod_line', queryset=ProdLine.objects.all())
+    texture_id = serializers.PrimaryKeyRelatedField(source='texture', queryset=Texture.objects.all())
 
     class Meta:
         model = Image
-        fields = ['image_name', 'image', 'time', 'mask', 'pred', 'size', 'area', 'prodline_id', 'weight1', 'weight2']
+        fields = ['image_name', 'image', 'time', 'mask', 'pred', 'size', 'area', 'texture_id', 'weight1', 'weight2']
 
     def create(self, validated_data):
         validated_data['time'] = datetime.now()
@@ -35,19 +35,19 @@ class ApiFlowPostSerializer(serializers.ModelSerializer):
         img = Image.objects.create(**validated_data)
 
         weights = validated_data.get('weights')
-        prodline = validated_data.get('prod_line')
-        prodline.image_size += 1
-        if validated_data.get('pred') == "1":
-            prodline.count1 += 1
-            prodline.sum_bad_size += validated_data['area']
-            prodline.min_bad_size = min(prodline.min_bad_size, validated_data['area'])
-            prodline.max_bad_size = max(prodline.max_bad_size, validated_data['area'])
+        texture = validated_data.get('texture')
+        texture.image_size += 1
+        if validated_data.get('pred') == 1:
+            texture.bad_count += 1
+            texture.sum_bad_size += validated_data['area']
+            texture.min_bad_size = min(texture.min_bad_size, validated_data['area'])
+            texture.max_bad_size = max(texture.max_bad_size, validated_data['area'])
         else:
-            prodline.count2 += 1
-            prodline.sum_dirt_size += validated_data['area']
-            prodline.min_dirt_size = min(prodline.min_bad_size, validated_data['area'])
-            prodline.max_dirt_size = max(prodline.max_bad_size, validated_data['area'])
-        prodline.save()
+            texture.dirt_count += 1
+            texture.sum_dirt_size += validated_data['area']
+            texture.min_dirt_size = min(texture.min_bad_size, validated_data['area'])
+            texture.max_dirt_size = max(texture.max_bad_size, validated_data['area'])
+        texture.save()
         """
         if weights is not None:
             for _, _class in enumerate(weights):
@@ -79,8 +79,8 @@ class ApiImageGetSerializer(serializers.Serializer):
     size = serializers.CharField()
     area = serializers.IntegerField()
 
-    prodline_id = serializers.IntegerField()
-    prodline_name = serializers.CharField()
+    texture_id = serializers.IntegerField()
+    texture_name = serializers.CharField()
     """
     class Meta:
         model = Image
@@ -89,12 +89,12 @@ class ApiImageGetSerializer(serializers.Serializer):
     """
 
 
-class ApiProdLineDetailSerializer(serializers.Serializer):
+class ApiTextureDetailSerializer(serializers.Serializer):
     """
     根据ProdLine构造json
     """
-    prodline_id = serializers.IntegerField()
-    prodline_name = serializers.CharField()
+    texture_id = serializers.IntegerField()
+    texture_name = serializers.CharField()
     total = serializers.IntegerField()
     bad_count = serializers.IntegerField()
     bad_ratio = serializers.IntegerField()
@@ -104,35 +104,35 @@ class ApiProdLineDetailSerializer(serializers.Serializer):
     avg_bad_size = serializers.IntegerField()
     min_bad_size = serializers.IntegerField()
     max_bad_size = serializers.IntegerField()
-    dirt_images = ProdLineImageSerializer(many=True)
-    bad_images = ProdLineImageSerializer(many=True)
+    dirt_images = TextureImageSerializer(many=True)
+    bad_images = TextureImageSerializer(many=True)
 
 
-class ProdLineSerializer(serializers.Serializer):
-    prodline_id = serializers.IntegerField()
-    prodline_name = serializers.CharField()
+class TextureSerializer(serializers.Serializer):
+    texture_id = serializers.IntegerField()
+    texture_name = serializers.CharField()
     total = serializers.IntegerField()
     bad_count = serializers.IntegerField()
-    bad_ratio = serializers.DecimalField(decimal_places=2, max_digits=4)
+    bad_ratio = serializers.IntegerField()
 
 
-class ApiProdLinesSerializer(serializers.Serializer):
-    prodlines = ProdLineSerializer(many=True)
+class ApiTexturesSerializer(serializers.Serializer):
+    textures = TextureSerializer(many=True)
 
 
-class ApiProdLinePostSerializer(serializers.ModelSerializer):
+class ApiTexturePostSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ProdLine
-        fields = ['id', 'prod_line_name', 'image_size', 'count1', 'count2']
+        model = Texture
+        fields = ['id', 'texture_name', 'image_size', 'bad_count', 'dirt_count']
 
     def create(self, **validated_data):
-        ProdLine.objects.create(**validated_data)
+        Texture.objects.create(**validated_data)
 
 
 class ApiStatsSerializer(serializers.Serializer):
     """
     根据ProdLine的images统计
     """
-    prod_line_name = serializers.CharField()
+    texture_name = serializers.CharField()
     image_size = serializers.IntegerField()
     images = StatsImageSerializer(source='images', many=True)

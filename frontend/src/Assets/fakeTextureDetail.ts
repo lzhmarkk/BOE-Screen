@@ -1,7 +1,7 @@
-export const fakeProdlineDetail = (id: number) => {
+export const fakeTextureDetail = (id: number) => {
     return ({
-        prodline_id: id,
-        prodline_name: "prodline name",
+        texture_id: id,
+        texture_name: "texture name",
         total: 500,
         bad_count: 120,
         bad_ratio: 120 / 500,

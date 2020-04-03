@@ -1,8 +1,8 @@
 import React from "react";
 
-export interface IProdlineDetail {
-    prodline_id: number
-    prodline_name: string
+export interface ITextureDetail {
+    texture_id: number
+    texture_name: string
     total: number
     bad_count: number
     bad_ratio: number
@@ -12,11 +12,11 @@ export interface IProdlineDetail {
     avg_bad_size: number
     min_bad_size: number
     max_bad_size: number
-    dirt_images: IProdlineDetailImage[]
-    bad_images: IProdlineDetailImage[]
+    dirt_images: ITextureDetailImage[]
+    bad_images: ITextureDetailImage[]
 }
 
-interface IProdlineDetailImage {
+interface ITextureDetailImage {
     image_id: number
     image_name: string
     time: any
@@ -64,8 +64,8 @@ export const genPieGraph = (prop: any) => {
                         }
                     },
                     data: [
-                        {value: prop.total, name: '未损坏'},
                         {value: prop.bad_count, name: '损坏'},
+                        {value: prop.total - prop.bad_count, name: '未损坏'},
                     ]
                 }
             ]

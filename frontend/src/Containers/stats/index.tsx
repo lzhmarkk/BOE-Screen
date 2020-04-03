@@ -2,23 +2,8 @@ import React, {useEffect, useState} from "react"
 import {genGraphs} from "../../Components/stats"
 import Axios from "axios";
 import APIList from "../../API";
-import {
-    Breadcrumb,
-    Button,
-    Icon,
-    Card,
-    Col,
-    Row,
-    Descriptions,
-    Steps,
-    Carousel,
-    Modal,
-    Empty,
-    message,
-    Table,
-    Spin
-} from "antd";
-import {fakeProdlineDetail} from "../../Assets/fakeProdlineDetail";
+import {Card, Row, message, Table} from "antd";
+import {fakeTextureDetail} from "../../Assets/fakeTextureDetail";
 import ReactEcharts from "echarts-for-react";
 import {genPieGraph} from "../../Components/stats/detail";
 
@@ -28,7 +13,7 @@ const PageStats = () => {
     //todo: 做echarts
     //todo: 讨论这个页面怎么展示东西
 
-    const [data, setData] = useState(fakeProdlineDetail(1));
+    const [data, setData] = useState(fakeTextureDetail(1));
     const genPieCharts = genPieGraph(data);
 
     //自动更新页面
@@ -47,21 +32,21 @@ const PageStats = () => {
     const genEcharts = genGraphs(statsData);
     const dataSource = [
         {
-            id: 'line1',
+            id: 'texture1',
             count: '100',
             true_rate: '50/120',
             false_rate: '70/120',
             info: 'None',
         },
         {
-            id: 'line2',
+            id: 'texture2',
             count: '123',
             true_rate: '3/5',
             false_rate: '2/5',
             info: 'None',
         },
         {
-            id: 'line3',
+            id: 'texture3',
             count: '6',
             true_rate: '33/50',
             false_rate: '17/50',
@@ -70,7 +55,7 @@ const PageStats = () => {
     ];
     const columns = [
         {
-            title: '生产线id',
+            title: '纹理id',
             dataIndex: 'id',
             key: 'id',
         },
@@ -104,7 +89,7 @@ const PageStats = () => {
             </span>
             <div>
                 {genEcharts}
-                <Table dataSource={dataSource} columns={columns} />
+                <Table dataSource={dataSource} columns={columns}/>
             </div>
             <Row>
                 <Card>

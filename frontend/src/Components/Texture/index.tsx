@@ -1,9 +1,9 @@
 import React from "react";
 import {Tag, Tooltip} from "antd";
 
-export interface IProdlineInfo {
-    prodline_id: string,
-    prodline_name: string,
+export interface ITextureInfo {
+    texture_id: string,
+    texture_name: string,
     total: string,
     bad_count: string,
     bad_ratio: string,
@@ -22,25 +22,25 @@ const getDesc = (ratio: number) => {
 
 export const GenColumns = (Action: (props: { record: any }) => JSX.Element) => [
     {
-        dataIndex: "prodline_id", title: "生产线序号", key: "prodline_id",
-        sorter: (a: IProdlineInfo, b: IProdlineInfo) => parseInt(a.prodline_id) - parseInt(b.prodline_id),
+        dataIndex: "texture_id", title: "纹理序号", key: "texture_id",
+        sorter: (a: ITextureInfo, b: ITextureInfo) => parseInt(a.texture_id) - parseInt(b.texture_id),
     },
     {
-        dataIndex: "prodline_name", title: "生产线名称", key: "prodline_name",
+        dataIndex: "texture_name", title: "纹理名称", key: "texture_name",
         render: (_: any, record: any, ___: any) => <a
-            href={`/prodline/${record.prodline_id}`}>{record.prodline_name}</a>
+            href={`/texture/${record.texture_id}`}>{record.texture_name}</a>
     },
     {
         dataIndex: "total", title: "图片总数", key: "total",
-        sorter: (a: IProdlineInfo, b: IProdlineInfo) => parseInt(a.total) - parseInt(b.total),
+        sorter: (a: ITextureInfo, b: ITextureInfo) => parseInt(a.total) - parseInt(b.total),
     },
     {
         dataIndex: "bad_count", title: "损坏数量", key: "bad_count",
-        sorter: (a: IProdlineInfo, b: IProdlineInfo) => parseInt(a.bad_count) - parseInt(b.bad_count)
+        sorter: (a: ITextureInfo, b: ITextureInfo) => parseInt(a.bad_count) - parseInt(b.bad_count)
     },
     {
         dataIndex: "bad_ratio", title: "损坏比例%", key: "bad_ratio",
-        sorter: (a: IProdlineInfo, b: IProdlineInfo) => parseInt(a.bad_ratio) - parseInt(b.bad_ratio),
+        sorter: (a: ITextureInfo, b: ITextureInfo) => parseInt(a.bad_ratio) - parseInt(b.bad_ratio),
         render: (_: any, record: any, ___: any) =>
             <Tooltip title={getDesc(record.bad_ratio)}>
                 <Tag color={getColor(record.bad_ratio)}>{record.bad_ratio}%</Tag>
@@ -52,7 +52,7 @@ export const GenColumns = (Action: (props: { record: any }) => JSX.Element) => [
     },
 ];
 
-export const GenGraphs = (data: IProdlineInfo[]) => {
+export const GenGraphs = (data: ITextureInfo[]) => {
     //todo @贺
     return (<div>
         柱状图

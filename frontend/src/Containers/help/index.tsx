@@ -7,7 +7,6 @@ const PageHelp = () => {
             <span>
                 帮助
             </span>
-            <IAccountForm/>
         </div>
     )
 };

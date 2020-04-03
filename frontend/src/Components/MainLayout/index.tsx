@@ -28,9 +28,9 @@ const MainLayout = (props: { children: ReactElement }) => {
                         <span>主页</span>
                     </Menu.Item>
                     <Menu.Item key="2">
-                        <Link to={"/prodline"}/>
+                        <Link to={"/texture"}/>
                         <Icon type={'build'}/>
-                        <span>生产线</span>
+                        <span>纹理</span>
                     </Menu.Item>
                     <Menu.Item key="3">
                         <Link to={"/stats"}/>

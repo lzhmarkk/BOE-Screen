@@ -25,8 +25,8 @@ interface IPageFlowDetail extends RouteComponentProps {
     time?: any
     mask?: string//图片mask
     image_name?: string//图片名
-    prodline_id?: number
-    prodline_name?: string//流水线名
+    texture_id?: number
+    texture_name?: string//纹理名
     pred?: number
     size?: string
     area?: number
@@ -131,11 +131,11 @@ const PageFlowDetail = withRouter((prop) => {
                         <Descriptions.Item label={'图片大小'}>
                             {data.size}
                         </Descriptions.Item>
-                        <Descriptions.Item label={'生产线序号'} span={2}>
-                            {data.prodline_id}
+                        <Descriptions.Item label={'纹理序号'} span={2}>
+                            {data.texture_id}
                         </Descriptions.Item>
-                        <Descriptions.Item label={'生产线名'}>
-                            <a href={`/prodline/${data.prodline_id}`}>{data.prodline_name}</a>
+                        <Descriptions.Item label={'纹理名'}>
+                            <a href={`/texture/${data.texture_id}`}>{data.texture_name}</a>
                         </Descriptions.Item>
                         <Descriptions.Item label={'图片类型'} span={2}>
                             {genClass(data.pred)}
