@@ -140,7 +140,7 @@ def api_texture(request):
             "texture_name": t.texture_name,
             "total": t.bad_count + t.dirt_count,
             "bad_count": t.bad_count,
-            "bad_ratio": 100 * t.bad_count / (t.bad_count + t.dirt_count)
+            "bad_ratio": 100 * t.bad_count / (t.bad_count + t.dirt_count) if t.bad_count + t.dirt_count != 0 else 0
         } for t in textures]
         data = {"textures": data}
         serializer = ApiTexturesSerializer(data)
@@ -173,11 +173,12 @@ def api_textureDetail(request, id):
                 'texture_name': texture.texture_name,
                 "total": texture.image_size,
                 "bad_count": texture.bad_count,
-                "bad_ratio": int(10000 * texture.bad_count / texture.image_size),
-                "avg_dirt_size": int(100 * texture.sum_dirt_size / texture.image_size),
+                "bad_ratio": int(10000 * texture.bad_count / texture.image_size) if texture.image_size != 0 else 0,
+                "avg_dirt_size": int(
+                    100 * texture.sum_dirt_size / texture.image_size) if texture.image_size != 0 else 0,
                 "min_dirt_size": texture.min_dirt_size,
                 "max_dirt_size": texture.max_dirt_size,
-                "avg_bad_size": int(100 * texture.sum_bad_size / texture.image_size),
+                "avg_bad_size": int(100 * texture.sum_bad_size / texture.image_size) if texture.image_size != 0 else 0,
                 "min_bad_size": texture.min_bad_size,
                 "max_bad_size": texture.max_bad_size,
                 "bad_images": texture.image_set.filter(pred=1),
