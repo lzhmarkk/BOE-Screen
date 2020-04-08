@@ -191,25 +191,30 @@ def api_textureDetail(request, id):
 # api/stats
 def api_stats(request):
     if request.method == 'GET':
-        data = JSONParser().parse(request)
-        start_time = data['start_time']
-        end_time = data['end_time']
-        texture_id = data['texture_id']
+        # data = JSONParser().parse(request)
+        # start_time = data['start_time']
+        # end_time = data['end_time']
 
-        try:
-            texture = Texture.objects.get(id=texture_id)
-        except Texture.DoesNotExist:
-            return HttpResponse("找不到id为{}的纹理".format(id), status=status.HTTP_404_NOT_FOUND)
-        else:
-            images = texture.image_set.filter(time__gte=start_time, time__lte=end_time)
-            data = {
-                'texture_name': texture.texture_name,
-                'image_size': texture.image_size,
-                'images': images,
-                'weights': texture.textureclass_set.all()
-            }
-            serializer = ApiStatsSerializer(data=data)
-            return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+        """
+        images = texture.image_set.filter(time__gte=start_time, time__lte=end_time)
+        data = {
+            'texture_name': texture.texture_name,
+            'image_size': texture.image_size,
+            'images': images,
+            'weights': texture.textureclass_set.all()
+        }
+        serializer = ApiStatsSerializer(data=data)
+        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+        """
+        textures = Texture.objects.all()
+        data = {
+            "textures": textures.values_list("texture_name", flat=True),
+            "bad": textures.values_list("bad_count", flat=True),
+            "dirt": textures.values_list("dirt_count", flat=True)
+        }
+        print(data)
+        serializer = ApiStatsSerializer(data)
+        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
 
 
 # 帮助页

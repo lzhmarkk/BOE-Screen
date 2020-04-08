@@ -130,9 +130,6 @@ class ApiTexturePostSerializer(serializers.ModelSerializer):
 
 
 class ApiStatsSerializer(serializers.Serializer):
-    """
-    根据ProdLine的images统计
-    """
-    texture_name = serializers.CharField()
-    image_size = serializers.IntegerField()
-    images = StatsImageSerializer(source='images', many=True)
+    textures = serializers.ListField()
+    bad = serializers.ListField()
+    dirt = serializers.ListField()

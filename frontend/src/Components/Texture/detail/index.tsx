@@ -64,8 +64,24 @@ export const genPieGraph = (prop: any) => {
                         }
                     },
                     data: [
-                        {value: prop.bad_count, name: '损坏'},
-                        {value: prop.total - prop.bad_count, name: '未损坏'},
+                        {
+                            value: prop.bad_count,
+                            name: '损坏',
+                            itemStyle: {
+                                normal: {
+                                    color: '#C00000'
+                                }
+                            }
+                        },
+                        {
+                            value: prop.total - prop.bad_count,
+                            name: '未损坏',
+                            itemStyle: {
+                                normal: {
+                                    color: '#00C000'
+                                }
+                            }
+                        },
                     ]
                 }
             ]

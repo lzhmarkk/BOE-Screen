@@ -2,31 +2,38 @@ import React, {useEffect, useState} from "react"
 import {genGraphs} from "../../Components/stats"
 import Axios from "axios";
 import APIList from "../../API";
-import {Card, Row, message, Table} from "antd";
-import {fakeTextureDetail} from "../../Assets/fakeTextureDetail";
+import {Card, message, Table, Spin} from "antd";
 import ReactEcharts from "echarts-for-react";
-import {genPieGraph} from "../../Components/stats/detail";
+import styles from './index.module.scss'
+
+interface IStatsData {
+    textures: string[]
+    bad: number[]
+    dirt: number[]
+}
 
 const PageStats = () => {
-    const [statsData, setStatsData] = useState(undefined);
-    //todo: 设计UI
-    //todo: 做echarts
-    //todo: 讨论这个页面怎么展示东西
-
-    const [data, setData] = useState(fakeTextureDetail(1));
-    const genPieCharts = genPieGraph(data);
+    const [statsData, setStatsData] = useState<IStatsData | any>({
+        textures: ["text1", "text2", "text3"],
+        bad: [12, 45, 0],
+        dirt: [0, 45, 12]
+    });
+    const [loading, setLoading] = useState(true);
 
     //自动更新页面
     useEffect(() => {
+        setLoading(true);
         Axios.get(APIList.stats)
             .then(res => {
                 setStatsData(res.data);
                 console.log(res);
                 message.success("成功获取统计数据");
+                setLoading(false);
             })
             .catch(err => {
                 console.log(err);
                 message.error("获取统计数据失败");
+                setLoading(false);
             })
     }, []);
     const genEcharts = genGraphs(statsData);
@@ -80,24 +87,15 @@ const PageStats = () => {
             key: 'info',
         }
     ];
-
-    return (
-        <div>
-            <span>
-                这里怎么设计@郭 @邓
-                统计和报表
-            </span>
-            <div>
-                {genEcharts}
-                <Table dataSource={dataSource} columns={columns}/>
-            </div>
-            <Row>
-                <Card>
-                    <ReactEcharts option={genPieCharts}/>
-                </Card>
-            </Row>
-        </div>
-    )
+    const content = <div>
+        <Card className={styles.card}>
+            <ReactEcharts option={genEcharts}/>
+        </Card>
+        <Card className={styles.card}>
+            <Table dataSource={dataSource} columns={columns}/>
+        </Card>
+    </div>;
+    return loading ? <Spin/> : content;
 };
 
 export default PageStats;
