@@ -15,7 +15,7 @@ from model.deeplab.utils.metrics import Evaluator
 
 
 class Trainer(object):
-    def __init__(self, args):
+    def __init__(self, args, train=False):
         self.args = args
 
         # Define Saver
@@ -31,7 +31,10 @@ class Trainer(object):
 
         # Define Dataloader
         kwargs = {'num_workers': args.workers, 'pin_memory': True}
-        self.train_loader, self.val_loader, self.test_loader, self.nclass = make_data_loader(args, **kwargs)
+        if train:
+            self.train_loader, self.val_loader, self.test_loader, self.nclass = make_data_loader(args, **kwargs)
+        else:
+            self.nclass = 3
 
         # Define network
         model = DeepLab(num_classes=self.nclass,
@@ -80,11 +83,11 @@ class Trainer(object):
         self.evaluator2 = Evaluator(self.nclass)
         # Define lr scheduler
         self.scheduler = LR_Scheduler(args.lr_scheduler, args.lr,
-                                      args.epochs, len(self.train_loader))
+                                      args.epochs, len(self.train_loader) if train else 4)
         self.scheduler1 = LR_Scheduler(args.lr_scheduler, args.lr,
-                                       args.epochs, len(self.train_loader))
+                                       args.epochs, len(self.train_loader) if train else 4)
         self.scheduler2 = LR_Scheduler(args.lr_scheduler, args.lr,
-                                       args.epochs, len(self.train_loader))
+                                       args.epochs, len(self.train_loader) if train else 4)
 
         # Using cuda
         if args.cuda:

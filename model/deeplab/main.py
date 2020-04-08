@@ -84,7 +84,7 @@ def analyze_image(image):
     args = Arg()
     print(args)
     torch.manual_seed(args.seed)
-    trainer = Trainer(args)
+    trainer = Trainer(args, train=False)
     mask, category = trainer.run(image)
     trainer.writer.close()
     return mask, category
