@@ -5,6 +5,7 @@ import flow_style from "./index.module.scss"
 import IPictureForm, {IFormPayload} from "./form";
 import APIList from "../../API";
 import {genClass, genWeights} from "../../Components/flow";
+import style from "./index.module.scss";
 
 interface PageFlowData {
     image?: string//图片
@@ -136,7 +137,7 @@ const PageFlow = () => {
     ;
     return (
         analyzing ? <div className="spin">
-            <Spin tip={"正在分析图片"}/>
+            <Spin tip={"正在分析图片"} size={'large'} className={style.spin}/>
         </div> : content
     )
 };

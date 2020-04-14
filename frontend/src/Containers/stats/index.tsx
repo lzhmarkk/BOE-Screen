@@ -95,7 +95,7 @@ const PageStats = () => {
             <Table dataSource={dataSource} columns={columns}/>
         </Card>
     </div>;
-    return loading ? <Spin/> : content;
+    return loading ? <Spin tip={'加载中'} size={'large'} className={styles.spin}/> : content;
 };
 
 export default PageStats;

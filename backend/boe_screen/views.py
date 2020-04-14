@@ -213,7 +213,6 @@ def api_stats(request):
             "bad": textures.values_list("bad_count", flat=True),
             "dirt": textures.values_list("dirt_count", flat=True)
         }
-        print(data)
         serializer = ApiStatsSerializer(data)
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)
 

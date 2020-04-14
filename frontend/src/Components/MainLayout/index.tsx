@@ -13,7 +13,7 @@ const logout_menu = (
             </a>
         </Menu.Item>
     </Menu>
-)
+);
 
 const MainLayout = (props: { children: ReactElement }) => {
     const [collapsed, setCollapsed] = useState(false);
@@ -32,16 +32,20 @@ const MainLayout = (props: { children: ReactElement }) => {
                         <Icon type={'build'}/>
                         <span>纹理</span>
                     </Menu.Item>
-                    <Menu.Item key="3">
-                        <Link to={"/stats"}/>
-                        <Icon type={'area-chart'}/>
-                        <span>统计和报表</span>
-                    </Menu.Item>
-                    <Menu.Item key="4">
-                        <Link to={"/account"}/>
-                        <Icon type={'user'}/>
-                        <span>个人账户</span>
-                    </Menu.Item>
+                    {
+                        <Menu.Item key="3">
+                            <Link to={"/stats"}/>
+                            <Icon type={'area-chart'}/>
+                            <span>统计和报表</span>
+                        </Menu.Item>
+                    }
+                    {/*
+                        <Menu.Item key="4">
+                            <Link to={"/account"}/>
+                            <Icon type={'user'}/>
+                            <span>个人账户</span>
+                        </Menu.Item>
+                    */}
                     <Menu.Item key="5">
                         <Link to={"/help"}/>
                         <Icon type={'compass'}/>
@@ -55,11 +59,13 @@ const MainLayout = (props: { children: ReactElement }) => {
                         屏幕缺陷检测系统
                     </div>
                     <div className={style.loginControl}>
+                        {/*}
                         <Dropdown overlay={logout_menu}>
                             <Button shape="circle">
                                 <Avatar style={{backgroundColor: '#87d068'}} icon={"user"}/>
                             </Button>
-                        </Dropdown>,
+                        </Dropdown>
+                        */}
                     </div>
                 </Header>
                 <Content className={style.content} style={{margin: '0 16px'}}>

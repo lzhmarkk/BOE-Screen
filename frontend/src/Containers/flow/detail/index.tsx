@@ -19,6 +19,7 @@ import {
 import flow_style from "../index.module.scss"
 import APIList from "../../../API";
 import IEditImageForm, {genClass, genWeights, IEditImageFormPayload} from "../../../Components/flow";
+import style from "../index.module.scss";
 
 interface IPageFlowDetail extends RouteComponentProps {
     image?: string//图片
@@ -213,7 +214,7 @@ const PageFlowDetail = withRouter((prop) => {
                onCancel={() => setModalDelete(false)}/>
     </div>;
 
-    return loading ? <Spin/> : content;
+    return loading ? <Spin tip={'加载中'} size={'large'} className={style.spin}/> : content;
 });
 
 export default PageFlowDetail;

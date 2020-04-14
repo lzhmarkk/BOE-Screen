@@ -2,7 +2,7 @@ import React, {useState, useEffect} from "react"
 import Axios from 'axios';
 import {Button, Table, message, Spin, Card} from 'antd';
 import fakeTextureInfo from "../../Assets/fakeTextureInfo";
-import {GenColumns, GenGraphs, ITextureGraphdata} from "../../Components/Texture";
+import {GenColumns, GenGraphs} from "../../Components/Texture";
 import style from './index.module.scss'
 import {ITextureInfo} from '../../Components/Texture';
 import APIList from "../../API";
@@ -69,7 +69,7 @@ const PageTextureIndex = () => {
                 />
             </Card>
         </div>;
-    return loading ? <Spin/> : content;
+    return loading ? <Spin tip={'加载中'} size={'large'} className={style.spin}/> : content;
 };
 
 export default PageTextureIndex;
