@@ -38,13 +38,13 @@ const PageFlow = () => {
             .then(res => {
                 console.log("后台数据", res);
                 setData(res.data);
-                setAnalyzing(false);
                 message.success("成功分析该图片");
+                setAnalyzing(false);
             })
             .catch(err => {
                     console.log(err);
-                    setAnalyzing(false);
-                    message.error("分析该图片的信息失败")
+                    message.error("分析该图片的信息失败，请重试")
+                    setAnalyzing(true);
                 }
             );
     };

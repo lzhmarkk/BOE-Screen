@@ -29,8 +29,8 @@ const PageTextureIndex = () => {
             })
             .catch(err => {
                 console.log(err);
-                message.error("获取纹理数据失败");
-                setLoading(false);
+                message.error("获取纹理数据失败，请重试");
+                setLoading(true);
             })
     }, []);
     const Action = (props: { record: any }) => <div>

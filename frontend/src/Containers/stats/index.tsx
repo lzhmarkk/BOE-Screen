@@ -32,8 +32,8 @@ const PageStats = () => {
             })
             .catch(err => {
                 console.log(err);
-                message.error("获取统计数据失败");
-                setLoading(false);
+                message.error("获取统计数据失败，请重试");
+                setLoading(true);
             })
     }, []);
     const genEcharts = genGraphs(statsData);

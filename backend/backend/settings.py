@@ -75,10 +75,22 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 # todo:设置数据库
+"""
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
+}
+"""
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'boe-screen',
+        'USER': 'user0',
+        'PASSWORD': 'User!User',
+        'HOST': 'rm-2zek275cq53qb7nnryo.mysql.rds.aliyuncs.com',
+        'PORT': '3306',
     }
 }
 

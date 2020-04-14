@@ -72,13 +72,13 @@ const PageFlowDetail = withRouter((prop) => {
             .then(res => {
                 console.log("收到数据", res);
                 setData(res.data);
-                setLoading(false);
                 message.success(`成功获取图片${kind}信息`);
+                setLoading(false);
             })
             .catch(err => {
                 console.log(err);
-                setLoading(false);
-                message.error(`获取图片${kind}信息失败`);
+                message.error(`获取图片${kind}信息失败，请重试`);
+                setLoading(true);
             })
     };
     useEffect(() => {

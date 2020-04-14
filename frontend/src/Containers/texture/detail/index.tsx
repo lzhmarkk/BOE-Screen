@@ -13,7 +13,7 @@ const {TabPane} = Tabs;
 const PageTextureDetail = withRouter((prop) => {
     const id = prop.match.params.id;
 
-    const [data, setData] = useState<ITextureDetail>(fakeTextureDetail(id));
+    const [data, setData] = useState<ITextureDetail | any>(fakeTextureDetail(id));
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -27,8 +27,8 @@ const PageTextureDetail = withRouter((prop) => {
             })
             .catch(err => {
                 console.log(err);
-                message.error(`获取纹理${id}数据失败`);
-                setLoading(false);
+                message.error(`获取纹理${id}数据失败，请重试`);
+                setLoading(true);
             })
     }, []);
 
