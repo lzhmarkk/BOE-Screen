@@ -192,6 +192,7 @@ def api_textureDetail(request, id):
 # api/stats
 def api_stats(request):
     if request.method == 'GET':
+        # todo add time selection and page selection
         # data = JSONParser().parse(request)
         # start_time = data['start_time']
         # end_time = data['end_time']
@@ -207,11 +208,29 @@ def api_stats(request):
         serializer = ApiStatsSerializer(data=data)
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)
         """
-        textures = Texture.objects.all()
+        texture = Texture.objects.all()
+        total = sum(list(texture.values_list("image_size", flat=True)))
+        bad_count = sum(list(texture.values_list("bad_count", flat=True)))
+        sum_dirt_size = sum(list(texture.values_list("sum_dirt_size", flat=True)))
+        min_dirt_size = min(list(texture.values_list("min_dirt_size", flat=True)))
+        max_dirt_size = max(list(texture.values_list("max_dirt_size", flat=True)))
+        sum_bad_size = sum(list(texture.values_list("sum_bad_size", flat=True)))
+        min_bad_size = min(list(texture.values_list("min_bad_size", flat=True)))
+        max_bad_size = max(list(texture.values_list("max_bad_size", flat=True)))
+        images = Image.objects.all()[:25]
+        # todo resize image
+        # todo add mask
         data = {
-            "textures": textures.values_list("texture_name", flat=True),
-            "bad": textures.values_list("bad_count", flat=True),
-            "dirt": textures.values_list("dirt_count", flat=True)
+            "total": total,
+            "bad_count": bad_count,
+            "bad_ratio": int(10000 * bad_count / total) if total != 0 else 0,
+            "avg_dirt_size": int(100 * sum_dirt_size / total) if total != 0 else 0,
+            "min_dirt_size": min_dirt_size,
+            "max_dirt_size": max_dirt_size,
+            "avg_bad_size": int(100 * sum_bad_size / total) if total != 0 else 0,
+            "min_bad_size": min_bad_size,
+            "max_bad_size": max_bad_size,
+            "images": images
         }
         serializer = ApiStatsSerializer(data)
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)

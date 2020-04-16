@@ -10,10 +10,10 @@ class Texture(models.Model):
     dirt_count = models.PositiveIntegerField(default=0, null=True)
 
     sum_dirt_size = models.PositiveIntegerField(default=0)
-    min_dirt_size = models.PositiveIntegerField(default=0)
+    min_dirt_size = models.PositiveIntegerField(default=1224 * 900)
     max_dirt_size = models.PositiveIntegerField(default=0)
     sum_bad_size = models.PositiveIntegerField(default=0)
-    min_bad_size = models.PositiveIntegerField(default=0)
+    min_bad_size = models.PositiveIntegerField(default=1224 * 900)
     max_bad_size = models.PositiveIntegerField(default=0)
 
 

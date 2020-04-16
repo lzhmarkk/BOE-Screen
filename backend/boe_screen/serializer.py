@@ -13,10 +13,11 @@ class TextureImageSerializer(serializers.Serializer):
     # ratio = serializers.IntegerField()
 
 
-class StatsImageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Image
-        fields = ['id', 'image_name', 'image', 'time', 'mask', 'pred']
+class StatsImageSerializer(serializers.Serializer):
+    image_id = serializers.IntegerField(source='id')
+    image_name = serializers.CharField()
+    pred = serializers.IntegerField()
+    image = serializers.CharField()
 
 
 class ApiFlowPostSerializer(serializers.ModelSerializer):
@@ -130,6 +131,13 @@ class ApiTexturePostSerializer(serializers.ModelSerializer):
 
 
 class ApiStatsSerializer(serializers.Serializer):
-    textures = serializers.ListField()
-    bad = serializers.ListField()
-    dirt = serializers.ListField()
+    total = serializers.IntegerField()
+    bad_count = serializers.IntegerField()
+    bad_ratio = serializers.IntegerField()
+    avg_dirt_size = serializers.IntegerField()
+    max_dirt_size = serializers.IntegerField()
+    min_dirt_size = serializers.IntegerField()
+    avg_bad_size = serializers.IntegerField()
+    max_bad_size = serializers.IntegerField()
+    min_bad_size = serializers.IntegerField()
+    images = StatsImageSerializer(many=True)
