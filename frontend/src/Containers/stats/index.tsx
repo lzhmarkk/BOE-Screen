@@ -2,9 +2,11 @@ import React, {useEffect, useState} from "react"
 import {genGraphs, genImageWall, IStatsDataGraph, IStatsDataImage} from "../../Components/stats"
 import Axios from "axios";
 import APIList from "../../API";
-import {Card, message, Spin, Breadcrumb, Icon, Descriptions} from "antd";
+import {Card, message, Spin, Breadcrumb, Icon, Descriptions, Col, Row} from "antd";
 import ReactEcharts from "echarts-for-react";
 import styles from './index.module.scss'
+import style from "../texture/detail/index.module.scss";
+import {genPieGraph} from "../../Components/Texture/detail";
 
 interface IStatsData {
     total: number
@@ -42,6 +44,7 @@ const PageStats = () => {
     }, []);
     const genEcharts = genGraphs(statsData ? statsData.graph : undefined);
     const genWall = genImageWall(statsData);
+    const genPieCharts = genPieGraph(statsData);
     const content = <div>
         <Breadcrumb>
             <Breadcrumb.Item href={"/"}>
@@ -53,38 +56,47 @@ const PageStats = () => {
                 <span>统计和报表</span>
             </Breadcrumb.Item>
         </Breadcrumb>
-        <Card className={styles.card}
-              extra={<span>总良品率-{100 - (statsData === undefined ? 100 : (statsData.bad_ratio / 100))}%</span>}>
-            <Descriptions layout="vertical" bordered>
-                <Descriptions.Item label={'图片数量'}>
-                    {statsData === undefined ? 0 : statsData.total}
-                </Descriptions.Item>
-                <Descriptions.Item label={"损坏数量"}>
-                    {statsData === undefined ? 0 : statsData.bad_count}
-                </Descriptions.Item>
-                <Descriptions.Item label={"良品率"}>
-                    {100 - (statsData === undefined ? 100 : (statsData.bad_ratio / 100))}%
-                </Descriptions.Item>
-                <Descriptions.Item label={"平均污点大小(像素)"}>
-                    {statsData === undefined ? 0 : (statsData.avg_dirt_size / 100)}
-                </Descriptions.Item>
-                <Descriptions.Item label={"最小污点大小(像素)"}>
-                    {statsData === undefined ? 0 : statsData.min_dirt_size}
-                </Descriptions.Item>
-                <Descriptions.Item label={"最大污点大小(像素)"}>
-                    {statsData === undefined ? 0 : statsData.max_dirt_size}
-                </Descriptions.Item>
-                <Descriptions.Item label={"平均坏块大小(像素)"}>
-                    {(statsData === undefined ? 0 : (statsData.avg_bad_size / 100))}
-                </Descriptions.Item>
-                <Descriptions.Item label={"最小坏块大小(像素)"}>
-                    {statsData === undefined ? 0 : statsData.min_bad_size}
-                </Descriptions.Item>
-                <Descriptions.Item label={"最大坏块大小(像素)"}>
-                    {statsData === undefined ? 0 : statsData.max_bad_size}
-                </Descriptions.Item>
-            </Descriptions>
-        </Card>
+        <Row>
+            <Col span={16}>
+                <Card className={styles.card}
+                      extra={<span>总良品率-{100 - (statsData === undefined ? 100 : (statsData.bad_ratio / 100))}%</span>}>
+                    <Descriptions layout="vertical" bordered>
+                        <Descriptions.Item label={'图片数量'}>
+                            {statsData === undefined ? 0 : statsData.total}
+                        </Descriptions.Item>
+                        <Descriptions.Item label={"损坏数量"}>
+                            {statsData === undefined ? 0 : statsData.bad_count}
+                        </Descriptions.Item>
+                        <Descriptions.Item label={"良品率"}>
+                            {100 - (statsData === undefined ? 100 : (statsData.bad_ratio / 100))}%
+                        </Descriptions.Item>
+                        <Descriptions.Item label={"平均污点大小(像素)"}>
+                            {statsData === undefined ? 0 : (statsData.avg_dirt_size / 100)}
+                        </Descriptions.Item>
+                        <Descriptions.Item label={"最小污点大小(像素)"}>
+                            {statsData === undefined ? 0 : statsData.min_dirt_size}
+                        </Descriptions.Item>
+                        <Descriptions.Item label={"最大污点大小(像素)"}>
+                            {statsData === undefined ? 0 : statsData.max_dirt_size}
+                        </Descriptions.Item>
+                        <Descriptions.Item label={"平均坏块大小(像素)"}>
+                            {(statsData === undefined ? 0 : (statsData.avg_bad_size / 100))}
+                        </Descriptions.Item>
+                        <Descriptions.Item label={"最小坏块大小(像素)"}>
+                            {statsData === undefined ? 0 : statsData.min_bad_size}
+                        </Descriptions.Item>
+                        <Descriptions.Item label={"最大坏块大小(像素)"}>
+                            {statsData === undefined ? 0 : statsData.max_bad_size}
+                        </Descriptions.Item>
+                    </Descriptions>
+                </Card>
+            </Col>
+            <Col span={8} className={style.card}>
+                <Card>
+                    <ReactEcharts option={genPieCharts}/>
+                </Card>
+            </Col>
+        </Row>
         <Card className={styles.card}>
             <ReactEcharts option={genEcharts}/>
         </Card>

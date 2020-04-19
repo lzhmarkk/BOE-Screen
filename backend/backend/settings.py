@@ -74,7 +74,6 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
-# todo:设置数据库
 """
 DATABASES = {
     'default': {
