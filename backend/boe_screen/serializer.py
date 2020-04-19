@@ -149,3 +149,5 @@ class ApiStatsSerializer(serializers.Serializer):
     min_bad_size = serializers.IntegerField()
     images = StatsImageSerializer(many=True)
     graph = StatsGraphSerializer()
+    next_page = serializers.BooleanField()
+    prev_page = serializers.BooleanField()

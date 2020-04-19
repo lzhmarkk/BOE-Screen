@@ -4,6 +4,7 @@ from rest_framework.parsers import JSONParser
 from .utils import *
 from .serializer import *
 from rest_framework import status
+import math
 
 
 # 动态分析页
@@ -190,8 +191,12 @@ def api_textureDetail(request, id):
 
 # 数据统计页
 # api/stats
-def api_stats(request):
+def api_stats(request, page):
     if request.method == 'GET':
+        # 每页显示图片个数
+        IMAGEPERLINE = 6
+        LINEPERPAGE = 6
+        IMAGESPERPAGE = IMAGEPERLINE * LINEPERPAGE
         # todo add time selection and page selection
         # data = JSONParser().parse(request)
         # start_time = data['start_time']
@@ -217,7 +222,7 @@ def api_stats(request):
         sum_bad_size = sum(list(texture.values_list("sum_bad_size", flat=True)))
         min_bad_size = min(list(texture.values_list("min_bad_size", flat=True)))
         max_bad_size = max(list(texture.values_list("max_bad_size", flat=True)))
-        images = Image.objects.all()[:24]
+        images = Image.objects.all()[IMAGESPERPAGE * page - IMAGESPERPAGE:IMAGESPERPAGE * page]
         # todo add mask
         data = {
             "total": total,
@@ -234,7 +239,9 @@ def api_stats(request):
                 "textures": Texture.objects.values_list("texture_name", flat=True),
                 "bad_counts": Texture.objects.values_list("bad_count", flat=True),
                 "dirt_counts": Texture.objects.values_list("dirt_count", flat=True)
-            }
+            },
+            "next_page": math.ceil(Image.objects.count() / IMAGESPERPAGE) > page,
+            "prev_page": page > 1,
         }
         serializer = ApiStatsSerializer(data)
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)

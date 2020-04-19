@@ -1,4 +1,7 @@
 .card {
+  padding: 10px;
+}
+.longCard{
   margin: 10px;
 }
 
@@ -7,4 +10,8 @@
   top: 30%;
   left: 50%;
   margin-left: 65px;
+}
+
+.buttonGroup{
+  float: right;
 }

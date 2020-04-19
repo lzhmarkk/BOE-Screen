@@ -7,7 +7,7 @@ export const APIList = {
     image: (id: number) => `${BASE}/api/image/${id}`,
     texture: `${BASE}/api/texture/index`,
     textureDetail: (id: number) => `${BASE}/api/texture/${id}`,
-    stats: `${BASE}/api/stats/`,
+    stats: (page: number) => `${BASE}/api/stats/${page}`,
 };
 
 export default APIList;
