@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react"
-import {genGraphs, genImageWall} from "../../Components/stats"
+import {genGraphs, genImageWall, IStatsDataImage} from "../../Components/stats"
 import Axios from "axios";
 import APIList from "../../API";
 import {Card, message, Spin, Breadcrumb, Icon, Descriptions} from "antd";
@@ -20,12 +20,7 @@ interface IStatsData {
     textures: string[]
     bad_counts: number[]
     dirt_counts: number[]
-    images: {
-        image_id: number
-        image_name: string
-        pred: number
-        image: string
-    }[]
+    images: IStatsDataImage[]
 }
 
 const PageStats = () => {

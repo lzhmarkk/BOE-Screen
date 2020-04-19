@@ -26,6 +26,7 @@ class Image(models.Model):
     pred = models.PositiveIntegerField(null=True)
     size = models.TextField(max_length=20, null=True)
     area = models.IntegerField(default=0)
+    # thumbnail = models.TextField(null=True)
 
     weight1 = models.PositiveIntegerField(null=True)
     weight2 = models.PositiveIntegerField(null=True)

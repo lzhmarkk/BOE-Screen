@@ -1,4 +1,22 @@
 import React from "react"
+import {Col, Card, Row, Tag} from 'antd';
+
+export interface IStatsDataImage {
+    image_id: number
+    image_name: string
+    pred: number
+    image: string
+}
+
+const {Meta} = Card;
+
+const genTag = (pred: number) => {
+    return (
+        pred === 1 ?
+            <Tag color={"red"}>损坏</Tag> :
+            <Tag color={"green"}>污点</Tag>
+    )
+};
 
 export const genGraphs = (prop: any) => {
     return ({
@@ -72,8 +90,29 @@ export const genGraphs = (prop: any) => {
     })
 };
 
-export const genImageWall = (prop: { images: any[] } | undefined) => {
+export const genImageWall = (prop: { images: IStatsDataImage[] } | undefined) => {
+    const IMAGESPERLINE = 6;
     const images = prop === undefined ? [] : prop.images;
-    //todo add wall
-    return (<div>this is wall</div>)
+    const genLine = (imgs: IStatsDataImage[]) => {
+        return imgs.map(e =>
+            <Col span={24 / IMAGESPERLINE}>
+                <Card hoverable onClick={() => window.location.href = `/flow/${e.image_id}`}
+                      cover={<img src={e.image} alt={e.image_name}/>}>
+                    <Meta title={e.image_name} description={genTag(e.pred)}/>
+                </Card>
+            </Col>)
+    };
+    const genWall = () => {
+        var res = [];
+        for (var l = 0; l < images.length / IMAGESPERLINE; l++) {
+            res.push(
+                <Row>
+                    {genLine(images.slice(l * IMAGESPERLINE, l * IMAGESPERLINE + IMAGESPERLINE))}
+                </Row>)
+        }
+        return res;
+    };
+    return (<div>
+        {genWall()}
+    </div>)
 };
