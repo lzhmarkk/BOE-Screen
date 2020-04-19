@@ -217,8 +217,7 @@ def api_stats(request):
         sum_bad_size = sum(list(texture.values_list("sum_bad_size", flat=True)))
         min_bad_size = min(list(texture.values_list("min_bad_size", flat=True)))
         max_bad_size = max(list(texture.values_list("max_bad_size", flat=True)))
-        images = Image.objects.all()[:25]
-        # todo resize image
+        images = Image.objects.all()[:24]
         # todo add mask
         data = {
             "total": total,
@@ -230,7 +229,12 @@ def api_stats(request):
             "avg_bad_size": int(100 * sum_bad_size / total) if total != 0 else 0,
             "min_bad_size": min_bad_size,
             "max_bad_size": max_bad_size,
-            "images": images
+            "images": images,
+            "graph": {
+                "textures": Texture.objects.values_list("texture_name", flat=True),
+                "bad_counts": Texture.objects.values_list("bad_count", flat=True),
+                "dirt_counts": Texture.objects.values_list("dirt_count", flat=True)
+            }
         }
         serializer = ApiStatsSerializer(data)
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)

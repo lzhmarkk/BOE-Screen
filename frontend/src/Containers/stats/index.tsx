@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react"
-import {genGraphs, genImageWall, IStatsDataImage} from "../../Components/stats"
+import {genGraphs, genImageWall, IStatsDataGraph, IStatsDataImage} from "../../Components/stats"
 import Axios from "axios";
 import APIList from "../../API";
 import {Card, message, Spin, Breadcrumb, Icon, Descriptions} from "antd";
@@ -16,10 +16,7 @@ interface IStatsData {
     avg_bad_size: number
     max_bad_size: number
     min_bad_size: number
-    //todo change interface to graph[]
-    textures: string[]
-    bad_counts: number[]
-    dirt_counts: number[]
+    graph: IStatsDataGraph
     images: IStatsDataImage[]
 }
 
@@ -43,7 +40,7 @@ const PageStats = () => {
                 setLoading(true);
             })
     }, []);
-    const genEcharts = genGraphs(statsData);
+    const genEcharts = genGraphs(statsData ? statsData.graph : undefined);
     const genWall = genImageWall(statsData);
     const content = <div>
         <Breadcrumb>

@@ -8,6 +8,12 @@ export interface IStatsDataImage {
     image: string
 }
 
+export interface IStatsDataGraph {
+    textures: string[]
+    bad_counts: number[]
+    dirt_counts: number[]
+}
+
 const {Meta} = Card;
 
 const genTag = (pred: number) => {
@@ -18,7 +24,7 @@ const genTag = (pred: number) => {
     )
 };
 
-export const genGraphs = (prop: any) => {
+export const genGraphs = (prop: IStatsDataGraph | undefined) => {
     return ({
         tooltip: {
             trigger: 'axis',
@@ -53,14 +59,14 @@ export const genGraphs = (prop: any) => {
         },
         yAxis: {
             type: 'category',
-            data: prop === undefined ? [] : prop.textures,
+            data: prop ? prop.textures : undefined
         },
         series: [
             {
                 name: '损坏',
                 type: 'bar',
                 stack: '总量',
-                data: prop === undefined ? [] : prop.bad,
+                data: prop ? prop.bad_counts : undefined,
                 itemStyle: {
                     normal: {
                         label: {
@@ -75,7 +81,7 @@ export const genGraphs = (prop: any) => {
                 name: '污渍',
                 type: 'bar',
                 stack: '总量',
-                data: prop === undefined ? [] : prop.dirt,
+                data: prop ? prop.dirt_counts : undefined,
                 itemStyle: {
                     normal: {
                         label: {

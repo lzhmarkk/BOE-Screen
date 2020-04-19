@@ -20,6 +20,12 @@ class StatsImageSerializer(serializers.Serializer):
     image = serializers.CharField()
 
 
+class StatsGraphSerializer(serializers.Serializer):
+    textures = serializers.ListField()
+    bad_counts = serializers.ListField()
+    dirt_counts = serializers.ListField()
+
+
 class ApiFlowPostSerializer(serializers.ModelSerializer):
     """
     根据Image构造json
@@ -141,3 +147,4 @@ class ApiStatsSerializer(serializers.Serializer):
     max_bad_size = serializers.IntegerField()
     min_bad_size = serializers.IntegerField()
     images = StatsImageSerializer(many=True)
+    graph = StatsGraphSerializer()
