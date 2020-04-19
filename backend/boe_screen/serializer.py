@@ -6,7 +6,7 @@ from .models import *
 class TextureImageSerializer(serializers.Serializer):
     image_id = serializers.IntegerField(source='id')
     image_name = serializers.CharField()
-    time = serializers.DateTimeField()
+    time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", read_only=True)
     pred = serializers.IntegerField()
     size = serializers.CharField()
     area = serializers.IntegerField()
@@ -18,6 +18,7 @@ class StatsImageSerializer(serializers.Serializer):
     image_name = serializers.CharField()
     pred = serializers.IntegerField()
     image = serializers.CharField()
+    time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", read_only=True)
 
 
 class StatsGraphSerializer(serializers.Serializer):
@@ -80,7 +81,7 @@ class ApiImageGetSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     image_name = serializers.CharField()
     image = serializers.CharField()
-    time = serializers.DateTimeField()
+    time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
     mask = serializers.CharField()
     pred = serializers.IntegerField()
     size = serializers.CharField()

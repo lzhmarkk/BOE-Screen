@@ -6,6 +6,7 @@ export interface IStatsDataImage {
     image_name: string
     pred: number
     image: string
+    time: any
 }
 
 export interface IStatsDataGraph {
@@ -104,7 +105,11 @@ export const genImageWall = (prop: { images: IStatsDataImage[] } | undefined) =>
             <Col span={24 / IMAGESPERLINE}>
                 <Card hoverable onClick={() => window.location.href = `/flow/${e.image_id}`}
                       cover={<img src={e.image} alt={e.image_name}/>}>
-                    <Meta title={e.image_name} description={genTag(e.pred)}/>
+                    <Meta title={e.image_name}
+                          description={<div>
+                              <p>{genTag(e.pred)}</p>
+                              <p>{e.time}</p>
+                          </div>}/>
                 </Card>
             </Col>)
     };
