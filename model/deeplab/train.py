@@ -71,7 +71,7 @@ class Trainer(object):
                 weight = np.load(classes_weights_path)
             else:
                 weight = calculate_weigths_labels(args.dataset, self.train_loader, self.nclass)
-            weight = torch.from_numpy(weight.astype(np.float32))
+            weight = torch.from_numpy(weight.astype(np.float16))
         else:
             weight = None
         self.criterion1 = SegmentationLosses(weight=weight, cuda=args.cuda).build_loss(mode=args.loss_type)

@@ -19,8 +19,8 @@ class Normalize(object):
     def __call__(self, sample):
         img = sample['image']
         mask = sample['label']
-        img = np.array(img).astype(np.float32)
-        mask = np.array(mask).astype(np.float32)
+        img = np.array(img).astype(np.float16)
+        mask = np.array(mask).astype(np.float16)
         img /= 255.0
         img -= self.mean
         img /= self.std
@@ -40,13 +40,13 @@ class ToTensor(object):
         mask = sample['label']
         category = sample['category']
 
-        img = np.array(img).astype(np.float32).transpose((2, 0, 1))
+        img = np.array(img).astype(np.float16).transpose((2, 0, 1))
         img = torch.from_numpy(img).float()
 
         if mask is not None:
-            mask = np.array(mask).astype(np.float32)
+            mask = np.array(mask).astype(np.float16)
             mask = torch.from_numpy(mask).float()
-            category = np.array(category).astype(np.float32)
+            category = np.array(category).astype(np.float16)
             category = torch.from_numpy(category).float()
 
         return {'image': img,

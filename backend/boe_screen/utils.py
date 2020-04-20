@@ -76,7 +76,7 @@ def _to_tensor(img):
     # swap color axis because
     # numpy image: H x W x C
     # torch image: C x H x W
-    img = numpy.array(img).astype(numpy.float32).transpose((2, 0, 1))
+    img = numpy.array(img).astype(numpy.float16).transpose((2, 0, 1))
     img = torch.from_numpy(img).float()
     return img
 
