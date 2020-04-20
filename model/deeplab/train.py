@@ -255,7 +255,8 @@ class Trainer(object):
         sample = transform({'image': image, 'label': None, 'category': None})
         image = sample['image']
         # 拼接成指定大小
-        image = torch.stack([image for _ in range(self.args.batch_size)])
+        # image = torch.stack([image for _ in range(self.args.batch_size)])
+        image = torch.stack([image])
         if self.args.cuda:
             image = image.cuda()
         with torch.no_grad():

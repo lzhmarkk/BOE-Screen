@@ -118,9 +118,9 @@ def base2pil(base):
 if __name__ == '__main__':
     os.chdir('./backend/')
     # test 先图片转化成base64,再测试从base64转化成图片并获取mask
-    img = _Image.open(os.path.join('/run/media/lzhmark/shared/boe-screen/all/images/19k-Final-9941-1',
+    img = _Image.open(os.path.join('/run/media/lzhmark/shared/boe-screen/19k/images/19k-Final-9941-1',
                                    '1a54960042mcj_1065_448_1.jpg'))
-    # img = _Image.open(os.path.join('/run/media/lzhmark/shared/boe-screen/all/images/19k-Final-fix-2202-2',
+    # img = _Image.open(os.path.join('/run/media/lzhmark/shared/boe-screen/19k/images/19k-Final-fix-2202-2',
     # '1a54950006kfq_1622_526_1_1.jpg'))
 
     base64_data = pil2base(img, 'jpeg')
